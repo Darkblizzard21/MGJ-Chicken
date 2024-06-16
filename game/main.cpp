@@ -1,6 +1,6 @@
 #include "App.h"
+#include "ChickenWings.h"
 
 int main() {
-    App app("MGJ");
-    app.run();
+	ChickenWings::game.run();
 }
