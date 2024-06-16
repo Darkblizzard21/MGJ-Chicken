@@ -1,8 +1,7 @@
 #include "App.h"
+#include "ChickenWings.h"
 
 int main() {
-	App app("MGJ");
-
 	const std::string vertexShaderSource = "#version 330 core\n"
 		"layout (location = 0) in vec2 aPos;\n"
 		"uniform vec2  pos; \n"
@@ -22,13 +21,13 @@ int main() {
 		"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
 		"}\n\0";
 	std::shared_ptr<Shader> shader = std::make_shared<Shader>(vertexShaderSource, fragmentShaderSource);
-	std::shared_ptr<Quad> quad = app.quadManager->CreateQuad();
+	std::shared_ptr<Quad> quad = ChickenWings::game.quadManager->CreateQuad();
 	quad->shader = shader;
 	quad->scale.x = 9.0 / 16.0;
-	std::shared_ptr<Quad> quad1 = app.quadManager->CreateQuad();
+	std::shared_ptr<Quad> quad1 = ChickenWings::game.quadManager->CreateQuad();
 	quad1->shader = shader;
 	quad1->scale.x = 9.0 / 16.0;
 	quad1->position.x = 0.5;
 	quad1->rotation = 3.14 * 0.33;
-    app.run();
+	ChickenWings::game.run();
 }
