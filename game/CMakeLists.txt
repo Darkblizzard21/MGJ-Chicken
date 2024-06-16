@@ -12,6 +12,8 @@ target_sources(game
     Minecart.cpp
     Chickenwings.h
     Chickenwings.cpp
+    Spline.h
+    Spline.cpp
 )
 target_link_libraries(game
     PRIVATE
