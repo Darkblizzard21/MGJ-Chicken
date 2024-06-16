@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <iostream>
+#include <Shader.h>
 
 namespace {
 	void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -22,6 +23,7 @@ App::App(std::string title, int width, int height): title_(title)
 
 	// setup window
 	window = glfwCreateWindow(width, height, title_.c_str(), NULL, NULL);
+	
 	glfwSetWindowAspectRatio(window, width, height);
 	if (window == NULL)
 	{
@@ -40,9 +42,12 @@ App::App(std::string title, int width, int height): title_(title)
 	}
 
 
-	glViewport(0, 0, 800, 600);
+	glViewport(0, 0, width, height);
 
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+	// setup game systems
+	quadManager = std::make_unique<QuadManager>();
 
 	StartUp();
 }
@@ -63,9 +68,10 @@ void App::run()
 		// update
 		Update();
 		// render
-
 		glClearColor(0.6f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		quadManager->RenderQuads();
 
 		// finish
 		glfwSwapBuffers(window);

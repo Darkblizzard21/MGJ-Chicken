@@ -12,4 +12,5 @@ target_sources(game
 target_link_libraries(game
     PRIVATE
     engine
+    glm::glm
 )

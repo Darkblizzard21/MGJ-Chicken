@@ -1,11 +1,12 @@
 #include <string>
+#include <Quad.h>
 
 struct GLFWwindow;
 
 class App
 {
 public:
-	App(std::string title = "MGJ Game", int width = 800, int height = 600);
+	App(std::string title = "MGJ Game", int width = 1600, int height = 900);
 	~App();
 
 	void run();
@@ -21,6 +22,7 @@ public:
 	const std::string& GetTitle() const;
 	void SetTitel(std::string title);
 
+	std::unique_ptr<QuadManager> quadManager;
 private:
 	std::string title_;
 };
