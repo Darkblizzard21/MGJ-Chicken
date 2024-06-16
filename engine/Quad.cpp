@@ -6,24 +6,29 @@
 QuadManager::QuadManager()
 {
 	float vertices[] = {
-		// first triangle
-		 0.5f,  0.5f,  // top right
-		 0.5f, -0.5f,  // bottom right
-		-0.5f,  0.5f,  // top left 
-		// second triangle
-		 0.5f, -0.5f,  // bottom right
-		-0.5f, -0.5f,  // bottom left
-		-0.5f,  0.5f   // top left
+	 0.5f,  0.5f, // top right
+	 0.5f, -0.5f, // bottom right
+	-0.5f, -0.5f, // bottom left
+	-0.5f,  0.5f, // top left 
+	};
+	unsigned int indices[] = {  // note that we start from 0!
+		0, 1, 3,   // first triangle
+		1, 2, 3    // second triangle
 	};
 
 	glGenBuffers(1, &VBO);
-	glGenVertexArrays(1, &VAO);
+	glGenVertexArrays(1, &VAO); 
+	glGenBuffers(1, &EBO);
+	// ..:: Initialization code :: ..
 	// 1. bind Vertex Array Object
 	glBindVertexArray(VAO);
-	// 2. copy our vertices array in a buffer for OpenGL to use
+	// 2. copy our vertices array in a vertex buffer for OpenGL to use
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	// 3. then set our vertex attributes pointers
+	// 3. copy our index array in a element buffer for OpenGL to use
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	// 4. then set the vertex attributes pointers
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 }
@@ -59,8 +64,10 @@ void QuadManager::RenderQuads()
 		quads[i]->shader->setVec2("pos", quads[i]->position);
 		quads[i]->shader->setVec2("scale", quads[i]->scale);
 		quads[i]->shader->setFloat("rotation", quads[i]->rotation);
+
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
 	}
 }
 

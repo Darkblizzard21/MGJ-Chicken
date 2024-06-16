@@ -6,7 +6,7 @@
 
 class QuadManager;
 
-class Quad
+class Quad final
 {
 private:
 	friend QuadManager;
@@ -35,7 +35,8 @@ public:
 private:
 
 	unsigned int VBO;
-	unsigned int VAO;
+	unsigned int VAO; 
+	unsigned int EBO;
 
 	std::vector<std::shared_ptr<Quad>> quads;
 
