@@ -63,7 +63,7 @@ void App::run()
 	gameStart_ = std::chrono::steady_clock::now();
 	lastFrame_ = gameStart_;
 	gameTime_ = 0;
-	deltaTime_ = 1000 / targetFrameRate;
+	deltaTime_ = 1 / targetFrameRate;
 	while (!glfwWindowShouldClose(window))
 	{
 		std::cout << "GameTime: " << gameTime_ << " FrameTime: " << deltaTime_ << std::endl;
@@ -82,15 +82,15 @@ void App::run()
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 
-		const float deltaTarget = 1000 / targetFrameRate;
+		const float deltaTarget = 1 / targetFrameRate;
 		std::chrono::steady_clock::time_point currentTime;
 		do
 		{
 			currentTime = std::chrono::steady_clock::now();
-			deltaTime_ = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastFrame_).count();
+			deltaTime_ = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastFrame_).count() * 0.001f;
 
 		} while (deltaTime_ < deltaTarget);
-		gameTime_ = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - gameStart_).count();
+		gameTime_ = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - gameStart_).count() * 0.001f;
 		lastFrame_ = currentTime;
 	}
 }
