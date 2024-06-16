@@ -1,0 +1,6 @@
+
+add_subdirectory(glad)
+add_subdirectory(stbi)
+
+set_target_properties(glad PROPERTIES FOLDER "imported")
+set_target_properties(stbi PROPERTIES FOLDER "imported")
