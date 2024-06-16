@@ -1,6 +1,6 @@
-#include "main.h"
+#include "App.h"
 
 int main() {
-    test::hello();
-    return 0;
+    App app("MGJ");
+    app.run();
 }

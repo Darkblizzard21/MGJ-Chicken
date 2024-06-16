@@ -26,7 +26,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-#set_property(DIRECTORY "." PROPERTY VS_STARTUP_PROJECT compatibilityCheck)
+set_property(DIRECTORY "." PROPERTY VS_STARTUP_PROJECT game)
 
 include(FetchContent)
 FetchContent_Declare(

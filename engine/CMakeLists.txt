@@ -3,8 +3,8 @@ add_library(engine STATIC)
 
 target_sources(engine
     PRIVATE
-    include/main.h
-    main.cpp
+    include/App.h    
+    App.cpp
 )
 target_link_libraries(engine
     PRIVATE
