@@ -60,8 +60,13 @@ App::~App()
 
 void App::run()
 {
+	gameStart_ = std::chrono::steady_clock::now();
+	lastFrame_ = gameStart_;
+	gameTime_ = 0;
+	deltaTime_ = 1000 / targetFrameRate;
 	while (!glfwWindowShouldClose(window))
 	{
+		std::cout << "GameTime: " << gameTime_ << " FrameTime: " << deltaTime_ << std::endl;
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, true);
 
@@ -76,7 +81,28 @@ void App::run()
 		// finish
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+
+		const float deltaTarget = 1000 / targetFrameRate;
+		std::chrono::steady_clock::time_point currentTime;
+		do
+		{
+			currentTime = std::chrono::steady_clock::now();
+			deltaTime_ = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastFrame_).count();
+
+		} while (deltaTime_ < deltaTarget);
+		gameTime_ = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - gameStart_).count();
+		lastFrame_ = currentTime;
 	}
+}
+
+float App::deltaTime()
+{
+	return deltaTime_;
+}
+
+float App::gameTime()
+{
+	return gameTime_;
 }
 
 const std::string& App::GetTitle() const

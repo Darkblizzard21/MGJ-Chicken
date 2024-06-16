@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <Quad.h>
+#include <chrono>
 
 struct GLFWwindow;
 
@@ -18,12 +19,24 @@ public:
 
 	virtual void Terminate() {}
 
-	GLFWwindow* window;
+
+	float deltaTime();
+	float gameTime();
 
 	const std::string& GetTitle() const;
 	void SetTitel(std::string title);
 
+	float targetFrameRate = 60;
+
+	GLFWwindow* window;
+
 	std::unique_ptr<QuadManager> quadManager;
 private:
 	std::string title_;
+
+	float gameTime_;
+	float deltaTime_;
+
+	std::chrono::steady_clock::time_point gameStart_;
+	std::chrono::steady_clock::time_point lastFrame_;
 };
