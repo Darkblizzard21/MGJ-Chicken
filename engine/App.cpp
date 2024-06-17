@@ -14,7 +14,7 @@ namespace {
 	}
 }
 
-App::App(std::string title, int width, int height): title_(title), world(b2Vec2(0, -10.0f))
+App::App(std::string title, int width, int height) : title_(title), world(b2Vec2(0, -10.0f))
 {
 	// setup glfw
 	glfwInit();
@@ -24,7 +24,7 @@ App::App(std::string title, int width, int height): title_(title), world(b2Vec2(
 
 	// setup window
 	window = glfwCreateWindow(width, height, title_.c_str(), NULL, NULL);
-	
+
 	glfwSetWindowAspectRatio(window, width, height);
 	if (window == NULL)
 	{
@@ -47,7 +47,11 @@ App::App(std::string title, int width, int height): title_(title), world(b2Vec2(
 
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+	UberShader::Initialize();
 	// setup game systems
+	gameTime_ = 0;
+	deltaTime_ = 1 / targetFrameRate;
+
 	quadManager.Initialize();
 }
 
@@ -63,8 +67,6 @@ void App::run()
 
 	gameStart_ = std::chrono::steady_clock::now();
 	lastFrame_ = gameStart_;
-	gameTime_ = 0;
-	deltaTime_ = 1 / targetFrameRate;
 	while (!glfwWindowShouldClose(window))
 	{
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)

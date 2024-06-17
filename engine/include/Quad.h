@@ -4,22 +4,15 @@
 #include <Shader.h>
 #include <vector>
 #include <Texture.h>
+#include <UberShader.h>
 
 class QuadManager;
 
-class Quad final
+struct Quad final : public UberData
 {
 private:
 	friend QuadManager;
 	Quad() = default;
-
-public:
-	glm::vec2 position = { 0, 0 };
-	glm::vec2 scale = { 1,1 };
-	float rotation = 0;
-
-	std::shared_ptr<Texture> colorTexture;
-	glm::vec2 uvOffset = { 0,0 };
 };
 
 class QuadManager
@@ -37,16 +30,12 @@ public:
 
 private:
 	void InitializeMesh();
-	void InitializeShader();
 	void InitializeTexture();
 
 	bool initialized = false;
-	std::unique_ptr<Shader> shader;
 	std::shared_ptr<Texture> defaultColorTexture;
 
-	unsigned int VBO;
-	unsigned int VAO; 
-	unsigned int EBO;
+	MeshBuffers buffers;
 
 	std::vector<std::shared_ptr<Quad>> quads;
 

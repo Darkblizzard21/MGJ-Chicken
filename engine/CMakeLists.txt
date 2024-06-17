@@ -3,15 +3,18 @@ add_library(engine STATIC)
 
 target_sources(engine
     PRIVATE
-    include/App.h   
+    include/App.h      
+    include/Quad.h 
     include/Shader.h     
     include/Texture.h 
-    include/Quad.h
+    include/UberShader.h
+
      
     App.cpp
+    Quad.cpp
     Shader.cpp
     Texture.cpp
-    Quad.cpp
+    UberShader.cpp
 )
 target_link_libraries(engine
     PRIVATE
