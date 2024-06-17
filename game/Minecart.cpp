@@ -22,8 +22,6 @@ void Minecart::update()
 	yVelocity -= 9.81f * ChickenWings::game.deltaTime();
 
 	//quad->rotation += ChickenWings::game.deltaTime() * 0.001f;
-	quad->scale.x = 9 / 16.0f;
-
 	quad->position.y += yVelocity * ChickenWings::game.deltaTime();
 	
 	if (quad->position.y < 0) {

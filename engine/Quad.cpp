@@ -114,7 +114,8 @@ void QuadManager::InitializeShader()
 		"   float rotX = cos(rotation) * aPos.x - sin(rotation) * aPos.y;\n"
 		"   float rotY = sin(rotation) * aPos.x + cos(rotation) * aPos.y;\n"
 		"	vec2 wPos = vec2(rotX, rotY) * scale + pos;\n"
-		"   gl_Position = vec4(wPos.x, wPos.y, 0.0f, 1.0);\n"
+		"   vec2 sPos =  (wPos + vec2(0,-4.5)) * vec2(1.0/8.0, 1.0/4.5);\n"
+		"   gl_Position = vec4(sPos.x, sPos.y, 0.0f, 1.0);\n"
 		"   TexCoord = aTex + uvOffset;\n"
 		"}\0";
 	const std::string fragmentShaderSource = "#version 330 core\n"
