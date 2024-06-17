@@ -4,8 +4,7 @@
 #include "ChickenWings.h"
 
 Minecart::Minecart() {
-	quad = ChickenWings::game.quadManager->CreateQuad();
-	quad->shader = ChickenWings::game.shader;
+	quad = ChickenWings::game.quadManager.CreateQuad();
 }
 
 void Minecart::update()

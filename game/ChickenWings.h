@@ -6,7 +6,6 @@
 class ChickenWings : public App {
 public:
 	static ChickenWings game;
-	std::shared_ptr<Shader> shader;
 
 	ChickenWings(std::string name);
 	virtual void Update() override;

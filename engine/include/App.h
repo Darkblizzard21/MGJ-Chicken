@@ -30,7 +30,7 @@ public:
 
 	GLFWwindow* window;
 
-	std::unique_ptr<QuadManager> quadManager;
+	QuadManager quadManager;
 private:
 	std::string title_;
 

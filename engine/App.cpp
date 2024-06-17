@@ -47,7 +47,7 @@ App::App(std::string title, int width, int height): title_(title)
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	// setup game systems
-	quadManager = std::make_unique<QuadManager>();
+	quadManager.Initialize();
 
 	StartUp();
 }
@@ -76,7 +76,7 @@ void App::run()
 		glClearColor(0.6f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		quadManager->RenderQuads();
+		quadManager.RenderQuads();
 
 		// finish
 		glfwSwapBuffers(window);
