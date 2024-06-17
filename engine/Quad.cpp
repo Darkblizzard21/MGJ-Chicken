@@ -7,7 +7,8 @@ QuadManager::~QuadManager()
 {
 	if (initialized) {
 		glDeleteBuffers(1, &VBO);
-		glDeleteBuffers(2, &VAO);
+		glDeleteBuffers(1, &VAO);
+		glDeleteBuffers(1, &EBO);
 	}
 }
 

@@ -14,6 +14,8 @@ target_sources(game
     Chickenwings.cpp
     Spline.h
     Spline.cpp
+    SplineRenderer.h
+    SplineRenderer.cpp
 )
 target_link_libraries(game
     PRIVATE

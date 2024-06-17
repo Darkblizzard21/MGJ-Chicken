@@ -17,6 +17,8 @@ public:
 
 	virtual void Update() { };
 
+	virtual void RenderObjects() { };
+
 	virtual void Terminate() {}
 
 
@@ -27,6 +29,7 @@ public:
 	void SetTitel(std::string title);
 
 	float targetFrameRate = 60;
+	bool wireframe = false;
 
 	GLFWwindow* window;
 
