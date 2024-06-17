@@ -2,6 +2,7 @@
 #include <string>
 #include <Quad.h>
 #include <chrono>
+#include <box2d/box2d.h>
 
 struct GLFWwindow;
 
@@ -29,6 +30,7 @@ public:
 	float targetFrameRate = 60;
 
 	GLFWwindow* window;
+	b2World world;
 
 	QuadManager quadManager;
 private:
@@ -39,4 +41,7 @@ private:
 
 	std::chrono::steady_clock::time_point gameStart_;
 	std::chrono::steady_clock::time_point lastFrame_;
+
+	int32 velocityIterations = 8;
+	int32 positionIterations = 3;
 };
