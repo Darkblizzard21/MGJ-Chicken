@@ -10,11 +10,13 @@ public:
 	static ChickenWings game;
 
 	ChickenWings(std::string name);
+	virtual void StartUp() override;
 	virtual void Update() override;
 	virtual void RenderObjects() override;
 
 private:
 	std::unique_ptr<Minecart> minecart;
+	b2Body* groundCollider = nullptr;
 	std::shared_ptr<Spline> spline;
 	std::unique_ptr<SplineRenderer> splineRenderer;
 };

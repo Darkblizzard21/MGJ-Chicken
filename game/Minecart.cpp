@@ -5,28 +5,35 @@
 
 Minecart::Minecart() {
 	quad = ChickenWings::game.quadManager.CreateQuad();
+
+	b2BodyDef bodyDef;
+	bodyDef.type = b2_dynamicBody;
+	bodyDef.position.Set(0.0f, 4.0f);
+	body = ChickenWings::game.world.CreateBody(&bodyDef);
+	b2PolygonShape dynamicBox;
+	dynamicBox.SetAsBox(0.5f, 0.5f);
+
+	b2FixtureDef fixtureDef;
+	fixtureDef.shape = &dynamicBox;
+	fixtureDef.density = 1.0f;
+	fixtureDef.friction = 0.3f;
+
+	body->CreateFixture(&fixtureDef);
+
 }
 
 void Minecart::update()
 {
+	b2Vec2 phyisicsPos = body->GetPosition();
+	quad->position = glm::vec2(phyisicsPos.x, phyisicsPos.y);
+	quad->rotation = body->GetAngle();
 	std::cout << quad->position.x << " | " << quad->position.y << std::endl;
 
 	if (!wasSpacePressed && glfwGetKey(ChickenWings::game.window, GLFW_KEY_SPACE)) {
 		wasSpacePressed = true;
-		yVelocity = 5.0f;
+		body->ApplyForceToCenter(b2Vec2(0, 500), true);
 	}
-
+	
 	if (!glfwGetKey(ChickenWings::game.window, GLFW_KEY_SPACE))
 		wasSpacePressed = false;
-
-	yVelocity -= 9.81f * ChickenWings::game.deltaTime();
-
-	//quad->rotation += ChickenWings::game.deltaTime() * 0.001f;
-	quad->position.y += yVelocity * ChickenWings::game.deltaTime();
-	
-	if (quad->position.y < 0) {
-		quad->position.y = 0;
-		yVelocity = 0;
-	}
-
 }

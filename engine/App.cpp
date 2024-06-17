@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <iostream>
 #include <Shader.h>
+#include <box2d/b2_common.h>
 
 namespace {
 	void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -13,7 +14,7 @@ namespace {
 	}
 }
 
-App::App(std::string title, int width, int height): title_(title)
+App::App(std::string title, int width, int height): title_(title), world(b2Vec2(0, -10.0f))
 {
 	// setup glfw
 	glfwInit();
@@ -48,8 +49,6 @@ App::App(std::string title, int width, int height): title_(title)
 
 	// setup game systems
 	quadManager.Initialize();
-
-	StartUp();
 }
 
 App::~App()
@@ -60,6 +59,8 @@ App::~App()
 
 void App::run()
 {
+	StartUp();
+
 	gameStart_ = std::chrono::steady_clock::now();
 	lastFrame_ = gameStart_;
 	gameTime_ = 0;
@@ -69,6 +70,8 @@ void App::run()
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, true);
 
+		// update physics
+		world.Step(1 / targetFrameRate, velocityIterations, positionIterations);
 		// update
 		Update();
 

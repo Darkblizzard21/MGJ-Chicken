@@ -19,6 +19,7 @@ target_link_libraries(engine
     glad
     glm::glm
     stbi
+    box2d
 )
 
 target_include_directories(engine PUBLIC include)
