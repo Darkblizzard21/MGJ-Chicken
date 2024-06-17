@@ -17,7 +17,9 @@ public:
 	glm::vec2 position = { 0, 0 };
 	glm::vec2 scale = { 1,1 };
 	float rotation = 0;
+
 	std::shared_ptr<Texture> colorTexture;
+	glm::vec2 uvOffset = { 0,0 };
 };
 
 class QuadManager

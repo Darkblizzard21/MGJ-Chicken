@@ -51,6 +51,7 @@ void QuadManager::RenderQuads()
 		shader->setVec2("scale", quads[i]->scale);
 		shader->setFloat("rotation", quads[i]->rotation);
 
+		shader->setVec2("uvOffset", quads[i]->uvOffset);
 		shader->setInt("ColorTex", 0);
 		quads[i]->colorTexture->Bind(0);
 
@@ -103,6 +104,7 @@ void QuadManager::InitializeShader()
 		"layout (location = 1) in vec2 aTex;\n"
 		"uniform vec2  pos; \n"
 		"uniform vec2  scale; \n"
+		"uniform vec2  uvOffset;\n"
 		"uniform float rotation; \n"
 		"\n"
 		"out vec2 TexCoord;\n"
@@ -113,7 +115,7 @@ void QuadManager::InitializeShader()
 		"   float rotY = sin(rotation) * aPos.x + cos(rotation) * aPos.y;\n"
 		"	vec2 wPos = vec2(rotX, rotY) * scale + pos;\n"
 		"   gl_Position = vec4(wPos.x, wPos.y, 0.0f, 1.0);\n"
-		"   TexCoord = aTex;\n"
+		"   TexCoord = aTex + uvOffset;\n"
 		"}\0";
 	const std::string fragmentShaderSource = "#version 330 core\n"
 		"in vec2 TexCoord;\n"
