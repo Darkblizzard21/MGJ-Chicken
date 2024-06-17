@@ -6,9 +6,29 @@ Spline::Spline()
 
 }
 
-float Spline::sampleHight(float x)
+float Spline::sampleHight(float x, int n)
 {
-	return 0.0f;
+	float currentT = 0.5;
+	float currentSetp = 0.5;
+
+	for (int i = 0; i < 10; i++) 
+	{
+		if (x < getPoint(currentT, n).x) {
+			currentSetp = currentSetp / 2;
+			currentT -= currentSetp;
+		}
+		else if (getPoint(currentT, n).x < x)
+		{
+			currentSetp = currentSetp / 2;
+			currentT += currentSetp;
+		}
+		else 
+		{
+			break;
+		}
+	}
+
+	return getPoint(currentT, n).y;
 }
 
 void Spline::addNextPoint(glm::vec2 p)
