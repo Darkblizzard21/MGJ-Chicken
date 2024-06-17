@@ -66,7 +66,6 @@ void App::run()
 	deltaTime_ = 1 / targetFrameRate;
 	while (!glfwWindowShouldClose(window))
 	{
-		std::cout << "GameTime: " << gameTime_ << " FrameTime: " << deltaTime_ << std::endl;
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, true);
 
