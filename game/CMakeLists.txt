@@ -21,4 +21,5 @@ target_link_libraries(game
     glfw
     glad
     glm::glm
+    box2d
 )
