@@ -16,6 +16,8 @@ target_sources(game
     Spline.cpp
     SplineRenderer.h
     SplineRenderer.cpp
+    PickUp.h
+    PickUp.cpp
 )
 target_link_libraries(game
     PRIVATE

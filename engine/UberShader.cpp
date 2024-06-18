@@ -112,6 +112,13 @@ void UberShader::DrawElements(const UberData& settings, const unsigned int& VAO,
 	uber->setInt("ColorTex", 0);
 	colorTex->Bind(0);
 
+	if (settings.wireframe) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+	else {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, triangles * 3, GL_UNSIGNED_INT, 0);
 	// maybe remove
