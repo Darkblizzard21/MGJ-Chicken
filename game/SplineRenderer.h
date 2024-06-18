@@ -12,7 +12,7 @@ enum class SplineMode
 class SplineRenderer
 {
 public:
-	SplineRenderer(std::shared_ptr<Spline> spline, SplineMode mode = SplineMode::Line);
+	SplineRenderer(std::shared_ptr<Spline> spline, SplineMode mode = SplineMode::FillBelow);
 	~SplineRenderer();
 
 	int sampleDensity = 15;
@@ -27,6 +27,8 @@ public:
 	uint8_t layer = 65;
 	glm::vec2 renderOffset = { 0,0 };
 	glm::vec2 uvOffset = { 0,0 };
+	glm::vec2 uvScale = { 0.5,0.5 };
+	std::shared_ptr<Texture> texture = nullptr;
 
 	void Render();
 	void Rebuild(bool force = false);
@@ -45,7 +47,7 @@ private:
 
 	SplineSegment CreateSplineSegmentFor(const int& i);
 	
-	glm::vec4 GetVertices(float x, int n);
+	glm::vec4 GetVertices(float xt, int n, bool useT = false);
 
 	std::vector<SplineSegment> splineSegments;
 };

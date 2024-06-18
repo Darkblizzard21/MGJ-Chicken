@@ -28,7 +28,8 @@ void SplineRenderer::Render()
 	data.layer = layer;
 	data.rotation = 0;
 	data.uvOffset = uvOffset;
-	data.uvScale = { 0.5,0.5 };
+	data.uvScale = uvScale;
+	data.colorTexture = texture;
 	for (const auto& segment : splineSegments)
 	{
 		if (UberShader::InFrustum(segment.buffers, renderOffset)) {
@@ -103,7 +104,7 @@ SplineRenderer::SplineSegment SplineRenderer::CreateSplineSegmentFor(const int& 
 	const auto startPoint = spline_->getPoint(0.f, n);
 	const auto endPoint = spline_->getPoint(1.f, n);
 
-	glm::vec4 startVerts = GetVertices(startPoint.x, n);
+	glm::vec4 startVerts = GetVertices(0.f, n, true);
 	vertices.push_back(UberVertex(startVerts.x, startVerts.y));
 	vertices.push_back(UberVertex(startVerts.z, startVerts.w));
 
@@ -129,7 +130,7 @@ SplineRenderer::SplineSegment SplineRenderer::CreateSplineSegmentFor(const int& 
 	}
 
 
-	glm::vec4 endVerts = GetVertices(endPoint.x, n);
+	glm::vec4 endVerts = GetVertices(1.f, n, true);
 	vertices.push_back(UberVertex(endVerts.x, endVerts.y));
 	vertices.push_back(UberVertex(endVerts.z, endVerts.w));
 
@@ -149,13 +150,22 @@ SplineRenderer::SplineSegment SplineRenderer::CreateSplineSegmentFor(const int& 
 	return result;
 }
 
-glm::vec4 SplineRenderer::GetVertices(float x, int n)
+glm::vec4 SplineRenderer::GetVertices(float xt, int n, bool useT)
 {
 	glm::vec4 result = {};
 	switch (mode)
 	{
 	case SplineMode::FillBelow: {
-		const float y = spline_->sampleHight(x, n);
+		float x = xt;
+		float y = 0;
+		if (useT) {
+			const auto p = spline_->getPoint(xt, n);
+			x = p.x;
+			y = p.y;
+		}
+		else {
+			y = spline_->sampleHight(xt, n);
+		}
 
 		result.x = x;
 		result.y = ybaseLine;
@@ -164,12 +174,12 @@ glm::vec4 SplineRenderer::GetVertices(float x, int n)
 		break;
 	}
 	case SplineMode::Line: {
-		const float t = spline_->sampleT(x, n);
+		float t = useT ? xt : spline_->sampleT(xt, n);
 		const glm::vec2 p = spline_->getPoint(t, n);
 		const glm::vec2 normal = spline_->getNormal(t, n);
 
 		const glm::vec2 l = p - normal * lowerWidth;
-		const glm::vec2 u = p + normal * lowerWidth;
+		const glm::vec2 u = p + normal * upperWidth;
 		result.x = l.x;
 		result.y = l.y;
 		result.z = u.x;
