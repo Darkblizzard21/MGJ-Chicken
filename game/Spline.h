@@ -2,6 +2,7 @@
 #include <list>
 #include <glm/glm.hpp>
 #include <vector>
+#include <box2d/box2d.h>
 
 class Spline {
 
@@ -17,4 +18,9 @@ public:
 	glm::vec2 getNormal(float t, int n);
 
 	std::vector<glm::vec2> splinePoints;
+
+private:
+	b2Body* collider = nullptr;
+	std::vector<b2Fixture*> fixtures;
+	const int collisionSamplesPerSegment = 10;
 };

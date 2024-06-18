@@ -56,8 +56,13 @@ void Minecart::update()
 
 	if (!wasSpacePressed && glfwGetKey(ChickenWings::game.window, GLFW_KEY_SPACE)) {
 		wasSpacePressed = true;
-		body->ApplyForceToCenter(b2Vec2(-42, 300), true);
-		body->ApplyAngularImpulse(0.2f, true);
+
+		// up vector
+		b2Vec2 forceVector(-glm::sin(quad->rotation), glm::cos(quad->rotation));
+		forceVector *= 300;
+
+		body->ApplyForceToCenter(forceVector, true);
+		//body->ApplyAngularImpulse(0.2f, true);
 	}
 	
 	if (!glfwGetKey(ChickenWings::game.window, GLFW_KEY_SPACE))
