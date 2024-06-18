@@ -6,6 +6,7 @@
 #include <iostream>
 #include <Shader.h>
 #include <box2d/b2_common.h>
+#include <Timer.h>
 
 namespace {
 	void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -33,6 +34,7 @@ App::App(std::string title, int width, int height) : title_(title), world(b2Vec2
 		throw "fuck";
 	}
 	glfwMakeContextCurrent(window);
+	glfwSwapInterval(0);
 
 
 	// load glad
@@ -77,19 +79,36 @@ void App::run()
 			glfwSetWindowShouldClose(window, true);
 
 		// update physics
+		Timer physicsT("Loop::Physiks");
 		world.Step(1 / targetFrameRate, velocityIterations, positionIterations);
+		physicsT.finish();
 		// update
+
+
+		Timer updateT("Loop::Update");
 		Update();
+		updateT.finish();
+
+		
+		Timer renderT("Loop::Render");
 
 		// render
 		glClearColor(0.6f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		Timer renderTO("Loop::Render::RenderObjects");
 		RenderObjects();
+		renderTO.finish();
+
+		Timer renderTQ("Loop::Render::RenderQuads");
 		quadManager.RenderQuads();
+		renderTQ.finish();
 
 		// finish
+		Timer renderTS("Loop::Render::glfwSwapBuffers");
 		glfwSwapBuffers(window);
+		renderTS.finish();
+		renderT.finish();
 		glfwPollEvents();
 
 		const float deltaTarget = 1 / targetFrameRate;
@@ -103,7 +122,15 @@ void App::run()
 
 		} while (deltaTime_ < deltaTarget);
 		if (waitCount == 1) {
-			std::cout << "\033[33m" << "Error: FrameRate Dipped below 60!" << "\033[0m" << std::endl;
+			std::cout << "\033[33m" << "Error: FrameRate Dipped below 60!" << "\033[0m" << " Currrent Frame rate: " << std::to_string(1.f/ deltaTime_) << std::endl;
+		}
+		else {
+			physicsT.print = false;
+			updateT.print = false;
+			renderT.print = false;
+			renderTO.print = false; 
+			renderTQ.print = false;
+			renderTS.print = false; 
 		}
 		gameTime_ = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - gameStart_).count() * 0.001f;
 		lastFrame_ = currentTime;
