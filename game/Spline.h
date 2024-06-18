@@ -22,6 +22,7 @@ public:
 	glm::vec2 getTangent(float t, int n);
 	glm::vec2 getNormal(float t, int n);
 
+	float scale = 0.5f;
 	std::vector<glm::vec2> splinePoints;
 
 private:

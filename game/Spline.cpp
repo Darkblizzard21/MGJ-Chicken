@@ -110,6 +110,7 @@ void Spline::addNextPoint(glm::vec2 p)
 
 glm::vec2 Spline::getPoint(float t)
 {
+	throw "not implemented";
 	return glm::vec2();
 }
 
@@ -119,8 +120,8 @@ glm::vec2 Spline::getPoint(float t, int n)
 	float y = 0;
 	glm::vec2 p1 = splinePoints[n];
 	glm::vec2 p2 = splinePoints[n + 1];
-	glm::vec2 v1 = splinePoints[n + 1] - splinePoints[n - 1];
-	glm::vec2 v2 = splinePoints[n + 2] - splinePoints[n];
+	glm::vec2 v1 = (splinePoints[n + 1] - splinePoints[n - 1]) * scale;
+	glm::vec2 v2 = (splinePoints[n + 2] - splinePoints[n]) * scale;
 
 	float t2 = t * t;
 	float t3 = t2 * t;
