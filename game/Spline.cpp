@@ -1,9 +1,12 @@
 #pragma once
 #include "Spline.h"
+#include "ChickenWings.h"
 
 Spline::Spline()
 {
-
+	b2BodyDef groundBodyDef;
+	groundBodyDef.position.Set(0.0f, 0.0f);
+	collider = ChickenWings::game.world.CreateBody(&groundBodyDef);
 }
 
 float Spline::sampleHight(float x)
@@ -58,6 +61,30 @@ float Spline::sampleHight(float x, int n)
 void Spline::addNextPoint(glm::vec2 p)
 {
 	splinePoints.push_back(p);
+
+	// we dont have colliders on the first and last segment
+	if (splinePoints.size() < 6)
+		return;
+
+	std::vector<b2Vec2> splineColliderPoints;
+	for (int i = collisionSamplesPerSegment; i >= 0; i--)
+	{
+		float t = (float)i / collisionSamplesPerSegment;
+
+		glm::vec2 point = getPoint(t, splinePoints.size() - 4);
+		splineColliderPoints.push_back(b2Vec2(point.x, point.y));
+	}
+	float tStepSize = 1.0f / collisionSamplesPerSegment;
+	glm::vec2 firstGhostVertex = getPoint(1 - tStepSize, splinePoints.size() - 5);
+	b2Vec2 ghostVertex1 = b2Vec2(firstGhostVertex.x, firstGhostVertex.y);
+	glm::vec2 secondGhostVertex = getPoint(tStepSize, splinePoints.size() - 3);
+	b2Vec2 ghostVertex2 = b2Vec2(secondGhostVertex.x, secondGhostVertex.y);
+
+	b2ChainShape chainShape;
+	chainShape.CreateChain(&splineColliderPoints[0], splineColliderPoints.size(), ghostVertex1, ghostVertex2);
+	fixtures.push_back(collider->CreateFixture(&chainShape, 0.0f));
+	
+	// TODO: remove fixtures when removing spline segments
 }
 
 glm::vec2 Spline::getPoint(float t)

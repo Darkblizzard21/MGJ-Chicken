@@ -20,21 +20,6 @@ void ChickenWings::StartUp() {
 	splineRenderer = std::make_unique<SplineRenderer>(spline);
 	splineRenderer->ybaseLine = -0.8f;
 
-	std::vector<b2Vec2> splineColliderPoints;
-	for (int i = spline->splinePoints.size()-1; i >= 0 ; i--)
-	{
-		glm::vec2 point = spline->splinePoints[i];
-		splineColliderPoints.push_back(b2Vec2(point.x, point.y));
-	}
-	b2ChainShape chain;
-	chain.CreateLoop(&splineColliderPoints[0], splineColliderPoints.size());
-
-	b2BodyDef groundBodyDef;
-	groundBodyDef.position.Set(0.0f, 0.0f);
-
-	groundCollider = world.CreateBody(&groundBodyDef);
-	groundCollider->CreateFixture(&chain, 0.0f);
-
 	quad = quadManager.CreateQuad();
 }
 
