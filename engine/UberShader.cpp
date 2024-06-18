@@ -3,6 +3,7 @@
 
 
 std::unique_ptr<Shader> UberShader::uber = nullptr;
+glm::vec2 UberShader::cameraPosition = { 0,0 };
 
 UberVertex::UberVertex(const glm::vec2& pos)
 {
@@ -85,7 +86,7 @@ void UberShader::DrawElements(const UberData& settings, const unsigned int& VAO,
 {
 	assert(uber != nullptr);
 	uber->use();
-	uber->setVec2("pos", settings.position);
+	uber->setVec2("pos", settings.position - cameraPosition);
 	uber->setVec2("scale", settings.scale);
 	uber->setFloat("rotation", settings.rotation);
 

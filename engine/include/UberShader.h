@@ -47,6 +47,8 @@ private:
 	UberShader() = delete;
 	static std::unique_ptr<Shader> uber;
 public:
+	static glm::vec2 cameraPosition;
+
 	static void Initialize();
 	static void DrawElements(const UberData& settings, const MeshBuffers& buffers);
 	static void DrawElements(const UberData& settings, const unsigned int& VAO, const unsigned int& tirangles);

@@ -18,15 +18,11 @@ void ChickenWings::StartUp() {
 
 	minecart = std::make_unique<Minecart>();
 
-	auto nextFloat = []() {
-		return static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-		};
-
 	wireframe = false;
 	spline = std::make_shared<Spline>();
 	for (int32_t i = -9; i < 11; i++)
 	{
-		spline->addNextPoint({ i, nextFloat() * 5 });
+		spline->addNextPoint({ i,  5  * (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))});
 	}
 	splineRenderer = std::make_unique<SplineRenderer>(spline);
 	splineRenderer->ybaseLine = -0.8f;
@@ -35,6 +31,7 @@ void ChickenWings::StartUp() {
 void ChickenWings::Update()
 {
 	minecart->update();
+	UberShader::cameraPosition.x += deltaTime();
 }
 
 void ChickenWings::RenderObjects()
