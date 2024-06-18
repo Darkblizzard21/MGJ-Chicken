@@ -19,4 +19,6 @@ private:
 	b2Body* groundCollider = nullptr;
 	std::shared_ptr<Spline> spline;
 	std::unique_ptr<SplineRenderer> splineRenderer;
+
+	float timeToNextExpansion = 0;
 };

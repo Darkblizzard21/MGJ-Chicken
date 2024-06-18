@@ -20,7 +20,7 @@ void ChickenWings::StartUp() {
 
 	wireframe = false;
 	spline = std::make_shared<Spline>();
-	for (int32_t i = -9; i < 11; i++)
+	for (int32_t i = -4; i < 5; i++)
 	{
 		spline->addNextPoint({ i,  5  * (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))});
 	}
@@ -32,6 +32,14 @@ void ChickenWings::Update()
 {
 	minecart->update();
 	UberShader::cameraPosition.x += deltaTime();
+	minecart->quad->position.x = UberShader::cameraPosition.x;
+
+	timeToNextExpansion += deltaTime();
+	if (timeToNextExpansion > 1.f) {
+		spline->addNextPoint({ spline->splinePoints[spline->splinePoints.size() - 1].x + 1.f,  5 * (static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) });
+		spline->splinePoints.erase(spline->splinePoints.begin());
+		timeToNextExpansion -= 1.f;
+	}
 }
 
 void ChickenWings::RenderObjects()
