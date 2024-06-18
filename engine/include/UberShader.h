@@ -32,6 +32,8 @@ struct UberData
 	float alphaThreshold = 0.5f;
 
 	uint8_t layer = 128;
+
+	bool wireframe = false;
 };
 
 struct UberVertex {
@@ -59,5 +61,7 @@ public:
 	static void DrawElements(const UberData& settings, const MeshBuffers& buffers);
 	static void DrawElements(const UberData& settings, const unsigned int& VAO, const unsigned int& tirangles);
 
+	//bool InFrustum(const glm::vec2& point);
+	//bool InFrustum(const glm::vec2& lower, const glm::vec2& upper);
 	static MeshBuffers UploadMesh(const std::vector<UberVertex>& vertexBuffer, const std::vector<unsigned int>& indexBuffer);
 };
