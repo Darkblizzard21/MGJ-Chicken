@@ -3,15 +3,27 @@
 #include <memory>
 #include "UberShader.h"
 
+enum class SplineMode
+{
+	FillBelow,
+	Line
+};
+
 class SplineRenderer
 {
 public:
-	SplineRenderer(std::shared_ptr<Spline> spline);
+	SplineRenderer(std::shared_ptr<Spline> spline, SplineMode mode = SplineMode::Line);
 	~SplineRenderer();
 
 	int sampleDensity = 15;
 
+	const SplineMode mode;
+	// FillBelow
 	float ybaseLine = 0;
+	// Line
+	float upperWidth = 0.2f;
+	float lowerWidth = 0.2f;
+
 	uint8_t layer = 65;
 	glm::vec2 renderOffset = { 0,0 };
 	glm::vec2 uvOffset = { 0,0 };
@@ -25,13 +37,15 @@ private:
 	glm::vec2 lastEnd_;
 	std::shared_ptr<Spline> spline_;
 
-	struct SplinePiece
+	struct SplineSegment
 	{
 		glm::vec2 startPoint;
 		MeshBuffers buffers;
 	};
 
-	SplinePiece CreateSplinePieceFor(const int& i);
+	SplineSegment CreateSplineSegmentFor(const int& i);
+	
+	glm::vec4 GetVertices(float x, int n);
 
-	std::vector<SplinePiece> splinePieces;
+	std::vector<SplineSegment> splineSegments;
 };
