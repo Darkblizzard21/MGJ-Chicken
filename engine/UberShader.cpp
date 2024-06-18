@@ -125,6 +125,24 @@ void UberShader::DrawElements(const UberData& settings, const unsigned int& VAO,
 	glBindVertexArray(0);
 }
 
+bool UberShader::InFrustum(const glm::vec2& point)
+{
+	const auto p = glm::abs(point - cameraPosition);
+	return p.x <= 8.0f && p.y <= 4.5f;
+}
+
+bool UberShader::InFrustum(const MeshBuffers& mesh, const glm::vec2& offset)
+{
+	return InFrustum(mesh.lower + offset, mesh.upper + offset);
+}
+
+bool UberShader::InFrustum(const glm::vec2& lower, const glm::vec2& upper)
+{
+	const auto lowerCorner = cameraPosition - glm::vec2(8.f, 4.5f);
+	const auto upperCorner = cameraPosition + glm::vec2(8.f, 4.5f);
+	return lower.x <= upperCorner.x && lower.y <= upperCorner.y  && lowerCorner.x < upper.x && lowerCorner.y < upper.y;
+}
+
 MeshBuffers UberShader::UploadMesh(const std::vector<UberVertex>& vertexBuffer, const std::vector<unsigned int>& indexBuffer) {
 	MeshBuffers result = {};
 	assert(indexBuffer.size() % 3 == 0);
@@ -151,8 +169,17 @@ MeshBuffers UberShader::UploadMesh(const std::vector<UberVertex>& vertexBuffer, 
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
+	result.lower = glm::vec2(std::numeric_limits<float>::max());
+	result.upper = glm::vec2(std::numeric_limits<float>::lowest());
+	for (const auto& vert : vertexBuffer)
+	{
+		result.lower = glm::min(result.lower, vert.pos);
+		result.upper = glm::max(result.upper, vert.pos);
+	}
+
 	return result;
 }
+
 
 bool MeshBuffers::valid()
 {

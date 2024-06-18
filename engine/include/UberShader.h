@@ -10,6 +10,8 @@ struct MeshBuffers
 	unsigned int VAO = -1;
 	unsigned int EBO = -1;
 	unsigned int triangleCount = 0;
+	glm::vec2 lower;
+	glm::vec2 upper;
 
 	bool valid();
 	void cleanUp();
@@ -61,7 +63,9 @@ public:
 	static void DrawElements(const UberData& settings, const MeshBuffers& buffers);
 	static void DrawElements(const UberData& settings, const unsigned int& VAO, const unsigned int& tirangles);
 
-	//bool InFrustum(const glm::vec2& point);
-	//bool InFrustum(const glm::vec2& lower, const glm::vec2& upper);
+	static bool InFrustum(const glm::vec2& point);
+	static bool InFrustum(const MeshBuffers& mesh, const glm::vec2& offset);
+	static bool InFrustum(const glm::vec2& lower, const glm::vec2& upper);
+
 	static MeshBuffers UploadMesh(const std::vector<UberVertex>& vertexBuffer, const std::vector<unsigned int>& indexBuffer);
 };

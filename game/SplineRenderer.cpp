@@ -29,9 +29,11 @@ void SplineRenderer::Render()
 	data.rotation = 0;
 	data.uvOffset = uvOffset;
 	data.uvScale = { 0.5,0.5 };
-	for (const auto& segment: splinePieces)
+	for (const auto& segment : splinePieces)
 	{
-		UberShader::DrawElements(data, segment.buffers);
+		if (UberShader::InFrustum(segment.buffers, renderOffset)) {
+			UberShader::DrawElements(data, segment.buffers);
+		}
 	}
 }
 
@@ -79,7 +81,6 @@ void SplineRenderer::Rebuild(bool force)
 			splinePieces.push_back(CreateSplinePieceFor(i));
 		}
 	}
-	
 
 	lastStart_ = splinePoints[0];
 	lastEnd_ = splinePoints[splinePoints.size() - 1];
@@ -105,7 +106,7 @@ SplineRenderer::SplinePiece SplineRenderer::CreateSplinePieceFor(const int& n)
 	vertices.push_back(UberVertex(startPoint.x, std::max(startPoint.y, ybaseLine)));
 
 
-	for (size_t i = 0; i < (sampleDensity-1); i++)
+	for (size_t i = 0; i < (sampleDensity - 1); i++)
 	{
 		float t = (i + 1.f) / (sampleDensity);
 		float x = glm::mix(startPoint.x, endPoint.x, t);
