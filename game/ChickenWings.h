@@ -17,7 +17,8 @@ public:
 private:
 	std::unique_ptr<Minecart> minecart;
 	std::shared_ptr<Spline> spline;
-	std::unique_ptr<SplineRenderer> splineRenderer;
+	std::unique_ptr<SplineRenderer> splineRendererB;
+	std::unique_ptr<SplineRenderer> splineRendererL;
 
 	std::shared_ptr<Quad> quad;
 	float xPos = -8;

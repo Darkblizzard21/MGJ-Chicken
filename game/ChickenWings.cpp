@@ -17,8 +17,17 @@ void ChickenWings::StartUp() {
 	{
 		spline->addNextPoint({ i*2,  3  * (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))});
 	}
-	splineRenderer = std::make_unique<SplineRenderer>(spline);
-	splineRenderer->ybaseLine = -0.8f;
+	splineRendererB = std::make_unique<SplineRenderer>(spline);
+	splineRendererB->ybaseLine = -0.8f;
+
+	std::vector<glm::vec3> ground = { glm::vec3(74 / 255.f, 39 / 255.f, 9/255.f) };
+	splineRendererB->texture = std::make_shared<Texture>(ground, 1, 1, SamplerTypes::NearestNeighbour);
+
+	splineRendererL = std::make_unique<SplineRenderer>(spline, SplineMode::Line);
+	splineRendererL->upperWidth = 0.f;
+	splineRendererL->layer++;
+	std::vector<glm::vec3> metal = { glm::vec3(0.75, 0.75, 0.75) };
+	splineRendererL->texture = std::make_shared<Texture>(metal, 1, 1, SamplerTypes::NearestNeighbour);
 
 	quad = quadManager.CreateQuad();
 }
@@ -35,5 +44,6 @@ void ChickenWings::Update()
 
 void ChickenWings::RenderObjects()
 {
-	splineRenderer->Render();
+	splineRendererB->Render();
+	splineRendererL->Render();
 }
