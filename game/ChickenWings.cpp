@@ -43,7 +43,7 @@ void ChickenWings::Update()
  	//UberShader::cameraPosition.x += deltaTime();
 
 	xPos += deltaTime();
-	quad->position = glm::vec2(xPos, spline->sampleHight(xPos));
+	//quad->position = glm::vec2(xPos, spline->sampleHight(xPos));
 	
 }
 
