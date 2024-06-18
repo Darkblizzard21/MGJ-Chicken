@@ -12,6 +12,7 @@ public:
 	int sampleDensity = 15;
 
 	float ybaseLine = 0;
+	uint8_t layer = 65;
 	glm::vec2 renderOffset = { 0,0 };
 	glm::vec2 uvOffset = { 0,0 };
 

@@ -44,8 +44,11 @@ App::App(std::string title, int width, int height) : title_(title), world(b2Vec2
 
 
 	glViewport(0, 0, width, height);
-
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+	// enalbe depth	
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 
 	UberShader::Initialize();
 	// setup game systems
@@ -67,6 +70,7 @@ void App::run()
 
 	gameStart_ = std::chrono::steady_clock::now();
 	lastFrame_ = gameStart_;
+
 	while (!glfwWindowShouldClose(window))
 	{
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -86,7 +90,7 @@ void App::run()
 		}
 
 		glClearColor(0.6f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		RenderObjects();
 		quadManager.RenderQuads();

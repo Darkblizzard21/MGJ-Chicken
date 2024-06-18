@@ -27,6 +27,11 @@ struct UberData
 	std::shared_ptr<Texture> colorTexture = nullptr;
 	glm::vec2 uvOffset = { 0,0 };
 	glm::vec2 uvScale = { 1,1 };
+
+	bool useAlpha = true;
+	float alphaThreshold = 0.5f;
+
+	uint8_t layer = 128;
 };
 
 struct UberVertex {
@@ -46,6 +51,7 @@ class UberShader
 private:
 	UberShader() = delete;
 	static std::unique_ptr<Shader> uber;
+	static std::unique_ptr<Texture> fallbackTexture;
 public:
 	static glm::vec2 cameraPosition;
 

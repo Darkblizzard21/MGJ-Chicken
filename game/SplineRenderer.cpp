@@ -21,6 +21,7 @@ void SplineRenderer::Render()
 	UberData data = {};
 	data.position = renderOffset;
 	data.scale = { 1,1 };
+	data.layer = layer;
 	data.rotation = 0;
 	data.uvOffset = uvOffset;
 	data.uvScale = { 0.5,0.5 };
