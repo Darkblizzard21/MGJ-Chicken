@@ -9,6 +9,7 @@ ChickenWings::ChickenWings(std::string name)
 }
 
 void ChickenWings::StartUp() {
+	wireframe = false;
 	b2BodyDef groundBodyDef;
 	groundBodyDef.position.Set(0.0f, -10.0f);
 	groundCollider = world.CreateBody(&groundBodyDef);
@@ -17,8 +18,6 @@ void ChickenWings::StartUp() {
 	groundCollider->CreateFixture(&groundBox, 0.0f);
 
 	minecart = std::make_unique<Minecart>();
-
-	wireframe = false;
 	spline = std::make_shared<Spline>();
 	for (int32_t i = -4; i < 5; i++)
 	{
