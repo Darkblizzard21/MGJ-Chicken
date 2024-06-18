@@ -7,6 +7,7 @@ target_sources(engine
     include/Quad.h 
     include/Shader.h     
     include/Texture.h 
+    include/Timer.h 
     include/UberShader.h
 
      
@@ -14,6 +15,7 @@ target_sources(engine
     Quad.cpp
     Shader.cpp
     Texture.cpp
+    Timer.cpp
     UberShader.cpp
 )
 target_link_libraries(engine
