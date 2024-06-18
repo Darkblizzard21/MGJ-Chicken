@@ -12,10 +12,8 @@ ChickenWings::ChickenWings(std::string name)
 void ChickenWings::StartUp() {
 
 	minecart = std::make_unique<Minecart>();
-
-	wireframe = false;
 	spline = std::make_shared<Spline>();
-	for (int32_t i = -9; i < 11; i++)
+	for (int32_t i = -4; i < 5; i++)
 	{
 		spline->addNextPoint({ i,  5  * (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))});
 	}

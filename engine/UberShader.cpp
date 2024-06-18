@@ -4,7 +4,7 @@
 
 std::unique_ptr<Shader> UberShader::uber = nullptr;
 std::unique_ptr<Texture> UberShader::fallbackTexture = nullptr;
-glm::vec2 UberShader::cameraPosition = { 0,0 };
+glm::vec2 UberShader::cameraPosition = { 0,4.5 };
 
 UberVertex::UberVertex(const glm::vec2& pos)
 {
@@ -59,7 +59,7 @@ void UberShader::Initialize()
 		"   float rotX = cos(rotation) * aPos.x - sin(rotation) * aPos.y;\n"
 		"   float rotY = sin(rotation) * aPos.x + cos(rotation) * aPos.y;\n"
 		"	vec2 wPos = vec2(rotX, rotY) * scale + pos;\n"
-		"   vec2 sPos =  (wPos + vec2(0,-4.5)) * vec2(1.0/8.0, 1.0/4.5);\n"
+		"   vec2 sPos =  wPos * vec2(1.0/8.0, 1.0/4.5);\n"
 		"   gl_Position = vec4(sPos.x, sPos.y, depth, 1.0);\n"
 		"   TexCoord = (aTex + uvOffset) * uvScale;\n"
 		"}\0";

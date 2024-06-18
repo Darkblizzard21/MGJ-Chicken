@@ -6,7 +6,7 @@
 class SplineRenderer
 {
 public:
-	SplineRenderer(std::weak_ptr<Spline> spline);
+	SplineRenderer(std::shared_ptr<Spline> spline);
 	~SplineRenderer();
 
 	int sampleDensity = 15;
@@ -19,14 +19,19 @@ public:
 	void Render();
 	void Rebuild(bool force = false);
 
-	void SetSpline(std::weak_ptr<Spline> spline);
+	void SetSpline(std::shared_ptr<Spline> spline);
 private:
 	glm::vec2 lastStart_;
 	glm::vec2 lastEnd_;
-	std::weak_ptr<Spline> spline_;
+	std::shared_ptr<Spline> spline_;
 
-	MeshBuffers buffers;
+	struct SplinePiece
+	{
+		glm::vec2 startPoint;
+		MeshBuffers buffers;
+	};
 
+	SplinePiece CreateSplinePieceFor(const int& i);
 
-	unsigned int triangleCount;
+	std::vector<SplinePiece> splinePieces;
 };

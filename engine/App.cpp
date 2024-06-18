@@ -101,12 +101,17 @@ void App::run()
 
 		const float deltaTarget = 1 / targetFrameRate;
 		std::chrono::steady_clock::time_point currentTime;
+		size_t waitCount = 0;
 		do
 		{
+			waitCount++;
 			currentTime = std::chrono::steady_clock::now();
 			deltaTime_ = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastFrame_).count() * 0.001f;
 
 		} while (deltaTime_ < deltaTarget);
+		if (waitCount == 1) {
+			std::cout << "\033[33m" << "Error: FrameRate Dipped below 60!" << "\033[0m" << std::endl;
+		}
 		gameTime_ = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - gameStart_).count() * 0.001f;
 		lastFrame_ = currentTime;
 	}
