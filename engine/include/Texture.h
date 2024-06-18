@@ -3,19 +3,25 @@
 #include <glm/glm.hpp>
 #include <vector>
 
+enum class SamplerTypes
+{
+	Linear,
+	NearestNeighbour
+};
+
 class Texture {
 public:
-    Texture(const std::string& texture);
-    Texture(const std::vector<glm::vec3>& data, const size_t& width, const size_t& height);
-    Texture(const std::vector<glm::vec4>& data, const size_t& width, const size_t& height);
+	Texture(const std::string& texture, SamplerTypes magFilter = SamplerTypes::Linear);
+	Texture(const std::vector<glm::vec3>& data, const size_t& width, const size_t& height, SamplerTypes magFilter = SamplerTypes::Linear);
+	Texture(const std::vector<glm::vec4>& data, const size_t& width, const size_t& height, SamplerTypes magFilter = SamplerTypes::Linear);
 
-    ~Texture();
+	~Texture();
 
-    void Bind(const unsigned int location = 0);
-    bool hasAlpha();
+	void Bind(const unsigned int location = 0);
+	bool hasAlpha();
 private:
-    void SetupSampler();
+	void SetupSampler(SamplerTypes magFilter);
 
-    unsigned int id;
-    bool hasAlpha_;
+	unsigned int id;
+	bool hasAlpha_;
 };

@@ -84,8 +84,8 @@ void UberShader::Initialize()
 
 	uber = std::make_unique<Shader>(vertexShaderSource, fragmentShaderSource);
 
-	std::vector<glm::vec3> fallback = { glm::vec3(1.0, 0.301f, 0) };
-	fallbackTexture = std::make_unique<Texture>(fallback, 1, 1);
+	std::vector<glm::vec3> fallback = { glm::vec3(1.0, 0.301f, 0) , glm::vec3(1.0), glm::vec3(1.0), glm::vec3(1.0, 0.301f, 0) };
+	fallbackTexture = std::make_unique<Texture>(fallback, 2, 2, SamplerTypes::NearestNeighbour);
 }
 
 void UberShader::DrawElements(const UberData& settings, const MeshBuffers& buffers)
@@ -140,7 +140,7 @@ bool UberShader::InFrustum(const glm::vec2& lower, const glm::vec2& upper)
 {
 	const auto lowerCorner = cameraPosition - glm::vec2(8.f, 4.5f);
 	const auto upperCorner = cameraPosition + glm::vec2(8.f, 4.5f);
-	return lower.x <= upperCorner.x && lower.y <= upperCorner.y  && lowerCorner.x < upper.x && lowerCorner.y < upper.y;
+	return lower.x <= upperCorner.x && lower.y <= upperCorner.y && lowerCorner.x < upper.x && lowerCorner.y < upper.y;
 }
 
 MeshBuffers UberShader::UploadMesh(const std::vector<UberVertex>& vertexBuffer, const std::vector<unsigned int>& indexBuffer) {
