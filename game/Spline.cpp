@@ -6,6 +6,30 @@ Spline::Spline()
 
 }
 
+float Spline::sampleHight(float x)
+{
+	int minIndex = 0;
+	int maxIndex = splinePoints.size() - 1;
+
+	for (size_t i = 0; i < 500; i++)
+	{
+		int index = (maxIndex + minIndex) / 2;
+		glm::vec2 leftPoint = splinePoints.at(index);
+		glm::vec2 rightPoint = splinePoints.at(index + 1);
+
+		if (x > leftPoint.x && x < rightPoint.x) {
+			return sampleHight(x, index);
+		}
+		else if (x < leftPoint.x) {
+			maxIndex = index - 1;
+		}
+		else if (x > rightPoint.x) {
+			minIndex = index + 1;
+		}
+	}
+	return 0;
+}
+
 float Spline::sampleHight(float x, int n)
 {
 	float currentT = 0.5;

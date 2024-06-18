@@ -9,6 +9,7 @@ public:
 	Spline();
 
 	float sampleHight(float x, int n);
+	float sampleHight(float x);
 	void addNextPoint(glm::vec2 p);
 	glm::vec2 getPoint(float t);
 	glm::vec2 getPoint(float t, int n);

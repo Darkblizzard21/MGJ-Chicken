@@ -20,5 +20,8 @@ private:
 	std::shared_ptr<Spline> spline;
 	std::unique_ptr<SplineRenderer> splineRenderer;
 
+	std::shared_ptr<Quad> quad;
+	float xPos = -8;
+
 	float timeToNextExpansion = 0;
 };
