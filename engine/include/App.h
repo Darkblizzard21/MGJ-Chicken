@@ -36,6 +36,12 @@ public:
 
 	QuadManager quadManager;
 private:
+	int width_;
+	int height_;
+	int hPadding_ = 0;
+	int vPadding_ = 0;
+
+
 	std::string title_;
 
 	float gameTime_;

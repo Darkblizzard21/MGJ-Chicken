@@ -8,14 +8,7 @@
 #include <box2d/b2_common.h>
 #include <Timer.h>
 
-namespace {
-	void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-	{
-		glViewport(0, 0, width, height);
-	}
-}
-
-App::App(std::string title, int width, int height) : title_(title), world(b2Vec2(0, -10.0f))
+App::App(std::string title, int width, int height) : title_(title), width_(width), height_(height), world(b2Vec2(0, -10.0f))
 {
 	// setup glfw
 	glfwInit();
@@ -26,7 +19,7 @@ App::App(std::string title, int width, int height) : title_(title), world(b2Vec2
 	// setup window
 	window = glfwCreateWindow(width, height, title_.c_str(), NULL, NULL);
 
-	glfwSetWindowAspectRatio(window, width, height);
+	//glfwSetWindowAspectRatio(window, width, height);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -34,6 +27,7 @@ App::App(std::string title, int width, int height) : title_(title), world(b2Vec2
 		throw "fuck";
 	}
 	glfwMakeContextCurrent(window);
+	glfwSetWindowUserPointer(window, this);
 	glfwSwapInterval(0);
 
 
@@ -43,10 +37,35 @@ App::App(std::string title, int width, int height) : title_(title), world(b2Vec2
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		throw "fuck";
 	}
-
-
+	// enable scissors and viewport
+	glEnable(GL_SCISSOR_TEST);
+	glScissor(0, 0, width_, height_);
 	glViewport(0, 0, width, height);
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int width, int height)
+		{
+			App* app = static_cast<App*>(glfwGetWindowUserPointer(window));
+			constexpr float sixNine = 16.f / 9.f;
+			const auto aspect = width * 1.f / height;
+
+			app->width_ = width;
+			app->height_ = height;
+			app->hPadding_ = 0;
+			app->vPadding_ = 0;
+			if (width * 1.f / height == sixNine) {
+				return;
+			}
+
+			if (aspect < sixNine) {
+				// crop at top and bottom
+				const auto h = (width / 16.f) * 9;
+				app->vPadding_ = (height - h) / 2;
+			}
+			else {
+				// crop at sides
+				const auto w = (height / 9.f) * 16;
+				app->hPadding_ = (width - w) / 2;
+			}
+		});
 
 	// enalbe depth	
 	glEnable(GL_DEPTH_TEST);
@@ -89,12 +108,18 @@ void App::run()
 		Update();
 		updateT.finish();
 
-		
+
 		Timer renderT("Loop::Render");
 
 		// render
-		glClearColor(0.6f, 0.3f, 0.3f, 1.0f);
+		glScissor(0, 0, width_, height_);
+		glClearColor(0.f, 0.f, 0.f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glScissor(hPadding_, vPadding_, width_ - 2 * hPadding_, height_ - 2 * vPadding_);
+		glViewport(hPadding_, vPadding_, width_ - 2 * hPadding_, height_ - 2 * vPadding_);
+		glClearColor(0.6f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
 
 		Timer renderTO("Loop::Render::RenderObjects");
 		RenderObjects();
@@ -122,15 +147,15 @@ void App::run()
 
 		} while (deltaTime_ < deltaTarget);
 		if (waitCount == 1) {
-			std::cout << "\033[33m" << "Error: FrameRate Dipped below 60!" << "\033[0m" << " Currrent Frame rate: " << std::to_string(1.f/ deltaTime_) << std::endl;
+			std::cout << "\033[33m" << "Error: FrameRate Dipped below 60!" << "\033[0m" << " Currrent Frame rate: " << std::to_string(1.f / deltaTime_) << std::endl;
 		}
 		else {
 			physicsT.print = false;
 			updateT.print = false;
 			renderT.print = false;
-			renderTO.print = false; 
+			renderTO.print = false;
 			renderTQ.print = false;
-			renderTS.print = false; 
+			renderTS.print = false;
 		}
 		gameTime_ = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - gameStart_).count() * 0.001f;
 		lastFrame_ = currentTime;
