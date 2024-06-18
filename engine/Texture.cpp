@@ -14,7 +14,7 @@ std::string resolvePath(const std::string& texture)
 
     std::cout << "Loading rescource: " << texture << " from basepath: " << basePath << std::endl;
 
-    std::vector<std::string> locations = {"", "assets", "../assets", "../../assets", "../../../assets"};
+    std::vector<std::string> locations = {"", "assets", "../assets", "../../assets", "../../../assets", "../../../../assets" };
     for (const auto& loc : locations) {
         auto currentPath =  std::filesystem::absolute(basePath / loc / texture);
         if (std::filesystem::exists(currentPath)) {
