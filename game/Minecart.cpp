@@ -4,22 +4,46 @@
 #include "ChickenWings.h"
 
 Minecart::Minecart() {
-	quad = ChickenWings::game.quadManager.CreateQuad();
+	quad = ChickenWings::game.quadManager.CreateQuad(std::make_shared<Texture>("Minecart.png"));
 
 	b2BodyDef bodyDef;
 	bodyDef.type = b2_dynamicBody;
-	bodyDef.position.Set(0.0f, 8.0f);
+	bodyDef.position.Set(0.0f, 7.0f);
 	body = ChickenWings::game.world.CreateBody(&bodyDef);
+
+	float density = 1.0f;
+	float friction = 0.3f;
+
 	b2PolygonShape dynamicBox;
-	dynamicBox.SetAsBox(0.5f, 0.5f);
+	dynamicBox.SetAsBox(0.4f, 0.3f);
+	b2FixtureDef boxFixture;
+	boxFixture.shape = &dynamicBox;
+	boxFixture.density = density;
+	boxFixture.friction = 2.5f;
 
-	b2FixtureDef fixtureDef;
-	fixtureDef.shape = &dynamicBox;
-	fixtureDef.density = 1.0f;
-	fixtureDef.friction = 0.3f;
 
-	body->CreateFixture(&fixtureDef);
+	b2CircleShape circleShape1;
+	circleShape1.m_radius = 0.15f;
+	circleShape1.m_p = b2Vec2(-0.3f, -0.2f);
 
+	b2FixtureDef wheelFixture1;
+	wheelFixture1.shape = &circleShape1;
+	wheelFixture1.density = density;
+	wheelFixture1.friction = friction;
+
+
+	b2CircleShape circleShape2;
+	circleShape2.m_radius = 0.15f;
+	circleShape2.m_p = b2Vec2(0.3f, -0.2f);
+
+	b2FixtureDef wheelFixture2;
+	wheelFixture2.shape = &circleShape2;
+	wheelFixture2.density = density;
+	wheelFixture2.friction = friction;
+
+	body->CreateFixture(&boxFixture);
+	body->CreateFixture(&wheelFixture1);
+	body->CreateFixture(&wheelFixture2);
 }
 
 void Minecart::update()
@@ -32,7 +56,8 @@ void Minecart::update()
 
 	if (!wasSpacePressed && glfwGetKey(ChickenWings::game.window, GLFW_KEY_SPACE)) {
 		wasSpacePressed = true;
-		body->ApplyForceToCenter(b2Vec2(0, 500), true);
+		body->ApplyForceToCenter(b2Vec2(-42, 300), true);
+		body->ApplyAngularImpulse(0.2f, true);
 	}
 	
 	if (!glfwGetKey(ChickenWings::game.window, GLFW_KEY_SPACE))

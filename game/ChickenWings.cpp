@@ -33,6 +33,7 @@ void ChickenWings::StartUp() {
 
 	b2BodyDef groundBodyDef;
 	groundBodyDef.position.Set(0.0f, 0.0f);
+
 	groundCollider = world.CreateBody(&groundBodyDef);
 	groundCollider->CreateFixture(&chain, 0.0f);
 
@@ -45,7 +46,7 @@ void ChickenWings::Update()
  	//UberShader::cameraPosition.x += deltaTime();
 
 	xPos += deltaTime();
-	quad->position = glm::vec2(xPos, spline->sampleHight(xPos));
+	//quad->position = glm::vec2(xPos, spline->sampleHight(xPos));
 	
 }
 
