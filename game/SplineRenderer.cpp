@@ -99,17 +99,20 @@ SplineRenderer::SplinePiece SplineRenderer::CreateSplinePieceFor(const int& n)
 	std::vector<UberVertex> vertices = {};
 	std::vector<glm::uint32_t> indices = {};
 
-	result.startPoint = spline_->getPoint(0.f, n);
-	vertices.push_back(UberVertex(result.startPoint.x, ybaseLine));
-	vertices.push_back(UberVertex(result.startPoint.x, std::max(result.startPoint.y, ybaseLine)));
+	const auto startPoint = spline_->getPoint(0.f, n);
+	const auto endPoint = spline_->getPoint(1.f, n);
+	vertices.push_back(UberVertex(startPoint.x, ybaseLine));
+	vertices.push_back(UberVertex(startPoint.x, std::max(startPoint.y, ybaseLine)));
 
-	for (size_t i = 0; i < sampleDensity; i++)
+
+	for (size_t i = 0; i < (sampleDensity-1); i++)
 	{
 		float t = (i + 1.f) / (sampleDensity);
-		auto point = spline_->getPoint(t, n);
+		float x = glm::mix(startPoint.x, endPoint.x, t);
+		float y = spline_->sampleHight(x, n);
 
-		vertices.push_back(UberVertex(point.x, ybaseLine));
-		vertices.push_back(UberVertex(point.x, std::max(point.y, ybaseLine)));
+		vertices.push_back(UberVertex(x, ybaseLine));
+		vertices.push_back(UberVertex(x, std::max(y, ybaseLine)));
 
 		const auto size = (glm::uint32_t)vertices.size();
 
@@ -122,8 +125,21 @@ SplineRenderer::SplinePiece SplineRenderer::CreateSplinePieceFor(const int& n)
 		indices.push_back(size - 2);
 	}
 
+	vertices.push_back(UberVertex(endPoint.x, ybaseLine));
+	vertices.push_back(UberVertex(endPoint.x, std::max(endPoint.y, ybaseLine)));
+
+	const auto size = (glm::uint32_t)vertices.size();
+
+	indices.push_back(size - 4);
+	indices.push_back(size - 3);
+	indices.push_back(size - 2);
+
+	indices.push_back(size - 3);
+	indices.push_back(size - 1);
+	indices.push_back(size - 2);
 
 	assert(indices.size() % 3 == 0);
+	result.startPoint = startPoint;
 	result.buffers = UberShader::UploadMesh(vertices, indices);
 	return result;
 }
