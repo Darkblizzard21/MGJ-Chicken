@@ -2,21 +2,25 @@
 #include <glad/glad.h>
 #include <iostream>
 #include <UberShader.h>
+#include <Timer.h>
 
-SplineRenderer::SplineRenderer(std::weak_ptr<Spline> spline)
+SplineRenderer::SplineRenderer(std::shared_ptr<Spline> spline)
 {
 	SetSpline(spline);
 }
 
 SplineRenderer::~SplineRenderer()
 {
-	buffers.cleanUp();
+	for (size_t i = 0; i < splinePieces.size(); i++)
+	{
+		splinePieces[i].buffers.cleanUp();
+	}
 }
 
 void SplineRenderer::Render()
 {
-	if (spline_.expired()) return;
-	Rebuild(lastStart_ == lastEnd_ || !buffers.valid());
+	if (spline_ == nullptr) return;
+	Rebuild(lastStart_ == lastEnd_);
 
 	UberData data = {};
 	data.position = renderOffset;
@@ -25,17 +29,20 @@ void SplineRenderer::Render()
 	data.rotation = 0;
 	data.uvOffset = uvOffset;
 	data.uvScale = { 0.5,0.5 };
-	UberShader::DrawElements(data, buffers);
+	for (const auto& segment: splinePieces)
+	{
+		UberShader::DrawElements(data, segment.buffers);
+	}
 }
 
 void SplineRenderer::Rebuild(bool force)
 {
-	if (spline_.expired()) {
+	if (spline_ == nullptr || spline_.use_count() == 1) {
 		std::cout << "SplineRenderer::Rebuild: Spline was expired" << std::endl;
+		spline_ = nullptr;
 		return;
 	};
-	auto spline = spline_.lock();
-	const auto& splinePoints = spline->splinePoints;
+	const auto& splinePoints = spline_->splinePoints;
 	if (!force &&
 		lastStart_ == splinePoints[0] &&
 		lastEnd_ == splinePoints[splinePoints.size() - 1]) {
@@ -45,50 +52,78 @@ void SplineRenderer::Rebuild(bool force)
 		std::cout << "SplineRenderer::Rebuild: Spline was to short" << std::endl;
 		return;
 	}
+	Timer timer("SplineRenderer::Rebuild");
 
-	buffers.cleanUp();
-
-	std::vector<UberVertex> vertices = {};
-	std::vector<glm::uint32_t> indices = {};
-
-	auto firstPoint = spline->getPoint(0.f, 1);
-	vertices.push_back(UberVertex(firstPoint.x, ybaseLine));
-	vertices.push_back(UberVertex(firstPoint.x, std::max(firstPoint.y, ybaseLine)));
-	for (size_t s = 1; s < splinePoints.size() - 2; s++)
+	while (!splinePieces.empty() && splinePieces[0].startPoint != splinePoints[1])
 	{
-		for (size_t i = 0; i < sampleDensity; i++)
+		splinePieces[0].buffers.cleanUp();
+		splinePieces.erase(splinePieces.begin());
+	}
+	if (splinePieces.empty()) {
+		for (size_t i = 1; i < splinePoints.size() - 2; i++)
 		{
-			float t = (i + 1.f) / (sampleDensity);
-			std::cout << "I: " << i << " T: " << t << std::endl;
-			auto point = spline->getPoint(t, (int)s);
-
-			vertices.push_back(UberVertex(point.x, ybaseLine));
-			vertices.push_back(UberVertex(point.x, std::max(point.y, ybaseLine)));
-
-			 const auto size = (glm::uint32_t) vertices.size();
-
-			indices.push_back(size - 4);
-			indices.push_back(size - 3);
-			indices.push_back(size - 2);
-
-			indices.push_back(size - 3);
-			indices.push_back(size - 1);
-			indices.push_back(size - 2);
+			splinePieces.push_back(CreateSplinePieceFor(i));
 		}
 	}
-
-	buffers = UberShader::UploadMesh(vertices, indices);
-
-	assert(indices.size() % 3 == 0);
-	triangleCount = static_cast<unsigned int>(indices.size() / 3);
+	else {
+		size_t i;
+		const auto& lastStart = splinePieces[splinePieces.size() - 1].startPoint;
+		for (i = 0; i < splinePoints.size(); i++)
+		{
+			if (splinePoints[i] == lastStart) {
+				break;
+			}
+		}
+		for (i = i + 1; i < splinePoints.size() - 2; i++)
+		{
+			splinePieces.push_back(CreateSplinePieceFor(i));
+		}
+	}
+	
 
 	lastStart_ = splinePoints[0];
 	lastEnd_ = splinePoints[splinePoints.size() - 1];
 }
 
-void SplineRenderer::SetSpline(std::weak_ptr<Spline> spline)
+void SplineRenderer::SetSpline(std::shared_ptr<Spline> spline)
 {
 	spline_ = spline;
 	lastStart_ = { 0,0 };
 	lastEnd_ = lastStart_;
+}
+
+SplineRenderer::SplinePiece SplineRenderer::CreateSplinePieceFor(const int& n)
+{
+	SplinePiece result;
+
+	std::vector<UberVertex> vertices = {};
+	std::vector<glm::uint32_t> indices = {};
+
+	result.startPoint = spline_->getPoint(0.f, n);
+	vertices.push_back(UberVertex(result.startPoint.x, ybaseLine));
+	vertices.push_back(UberVertex(result.startPoint.x, std::max(result.startPoint.y, ybaseLine)));
+
+	for (size_t i = 0; i < sampleDensity; i++)
+	{
+		float t = (i + 1.f) / (sampleDensity);
+		auto point = spline_->getPoint(t, n);
+
+		vertices.push_back(UberVertex(point.x, ybaseLine));
+		vertices.push_back(UberVertex(point.x, std::max(point.y, ybaseLine)));
+
+		const auto size = (glm::uint32_t)vertices.size();
+
+		indices.push_back(size - 4);
+		indices.push_back(size - 3);
+		indices.push_back(size - 2);
+
+		indices.push_back(size - 3);
+		indices.push_back(size - 1);
+		indices.push_back(size - 2);
+	}
+
+
+	assert(indices.size() % 3 == 0);
+	result.buffers = UberShader::UploadMesh(vertices, indices);
+	return result;
 }
