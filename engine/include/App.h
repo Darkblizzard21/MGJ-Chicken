@@ -3,6 +3,7 @@
 #include <Quad.h>
 #include <chrono>
 #include <box2d/box2d.h>
+#include <DeferredComposit.h>
 
 struct GLFWwindow;
 
@@ -36,6 +37,16 @@ public:
 
 	QuadManager quadManager;
 private:
+	void ResizeBuffers(const int& width, const int& height);
+	void CleanBuffers();
+
+	unsigned int gBuffer = -1;
+	unsigned int gPosition = -1; 
+	unsigned int gNormal = -1; 
+	unsigned int gAlbedo = -1;
+
+	DeferredCompositPass compositPass_;
+
 	int width_;
 	int height_;
 	int hPadding_ = 0;

@@ -4,14 +4,16 @@ add_library(engine STATIC)
 target_sources(engine
     PRIVATE
     include/App.h      
+    include/DeferredComposit.h   
     include/Quad.h 
     include/Shader.h     
     include/Texture.h 
     include/Timer.h 
     include/UberShader.h
 
-     
-    App.cpp
+
+    App.cpp         
+    DeferredComposit.cpp
     Quad.cpp
     Shader.cpp
     Texture.cpp
