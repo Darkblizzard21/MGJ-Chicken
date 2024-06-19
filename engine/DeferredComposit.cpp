@@ -2,7 +2,7 @@
 #include <glad/glad.h>
 #include <vector>
 #include <glm/glm.hpp>
-
+#include "UberShader.h"
 
 DeferredCompositPass::~DeferredCompositPass()
 {
@@ -26,18 +26,33 @@ void DeferredCompositPass::Initalize()
 		"   TexCoord = aTex;\n"
 		"}\0";
 
-	const std::string fragmentMain = ""
-		"   FragColor = vec4(texture(ColorTex, TexCoord).rgb,1);\n";
 
-	const std::string fragmentShaderSource = "#version 330 core\n"
+	const std::string fragmentUniforms = "#version 330 core\n"
 		"in vec2 TexCoord;\n"
 		"\n"
 		"uniform sampler2D ColorTex;\n"
 		"uniform sampler2D NormalTex;\n"
 		"uniform sampler2D PositionTex;\n"
 		"\n"
-		"out vec4 FragColor;\n"
+		"uniform vec3  lightColor;\n"
+		"uniform vec2  lightPos;\n"
+		"uniform float lightRadius;\n"
 		"\n"
+		"out vec4 FragColor;\n";
+
+	const std::string fragmentMain = ""
+		"   vec2 pos = texture(PositionTex, TexCoord).xy;\n"
+		"   float distance = length(pos-lightPos);\n"
+		"   if(distance <= lightRadius)\n"
+		"   {\n"
+		"		float d = distance / lightRadius;\n"
+		"		d = 1-d;\n"
+		"		FragColor = vec4(texture(ColorTex, TexCoord).rgb * lightColor * d,1);\n"
+		"   } else {\n"
+		"		FragColor = vec4(0,0,0,1);\n"
+		"   }\n";
+
+	const std::string fragmentShaderSource = fragmentUniforms +
 		"void main()\n"
 		"{\n"
 		+ fragmentMain +
@@ -47,15 +62,7 @@ void DeferredCompositPass::Initalize()
 
 
 #ifdef DEBUG
-	const std::string debugfragmentShaderSource = "#version 330 core\n"
-		"in vec2 TexCoord;\n"
-		"\n"
-		"uniform sampler2D ColorTex;\n"
-		"uniform sampler2D NormalTex;\n"
-		"uniform sampler2D PositionTex;\n"
-		"\n"
-		"out vec4 FragColor;\n"
-		"\n"
+	const std::string debugfragmentShaderSource = fragmentUniforms +
 		"void main()\n"
 		"{\n"
 		"	if(TexCoord.x < 0.5f)\n"
@@ -129,27 +136,21 @@ void DeferredCompositPass::Execute(const int& colorTex, const int& normalTex, co
 	glActiveTexture(GL_TEXTURE0);
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, colorTex);
-	pass->setInt("ColorTex", 0);
-#ifdef DEBUG
-	debugPass->setInt("ColorTex", 0);
-#endif
+	setInt("ColorTex", 0);
 
 	glActiveTexture(GL_TEXTURE1);
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, normalTex);
-	pass->setInt("NormalTex", 1);
-#ifdef DEBUG
-	debugPass->setInt("NormalTex", 1);
-#endif
+	setInt("NormalTex", 1);
 
 	glActiveTexture(GL_TEXTURE2);
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, posTex);
-	pass->setInt("PositionTex", 2);
-#ifdef DEBUG
-	debugPass->setInt("PositionTex", 2);
-#endif
+	setInt("PositionTex", 2);
 
+	setVec3("lightColor", lightColor);
+	setVec2("lightPos", lightPos - UberShader::cameraPosition);
+	setFloat("lightRadius", lightRadius);
 
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -174,4 +175,61 @@ void DeferredCompositPass::CleanUp()
 	VBO = -1;
 	VAO = -1;
 	EBO = -1;
+}
+
+void DeferredCompositPass::setInt(const std::string& name, const int& value) {
+
+
+#ifdef DEBUG
+	if (debug) {
+		debugPass->setInt(name, value);
+	}
+	else {
+#endif 
+		pass->setInt(name, value);
+#ifdef DEBUG
+	}
+#endif
+}
+
+void DeferredCompositPass::setFloat(const std::string& name, float value) const
+{
+#ifdef DEBUG
+	if (debug) {
+		debugPass->setFloat(name, value);
+	}
+	else {
+#endif 
+		pass->setFloat(name, value);
+#ifdef DEBUG
+	}
+#endif
+}
+
+void DeferredCompositPass::setVec2(const std::string& name, const glm::vec2& value) const
+{
+#ifdef DEBUG
+	if (debug) {
+		debugPass->setVec2(name, value);
+	}
+	else {
+#endif 
+		pass->setVec2(name, value);
+#ifdef DEBUG
+	}
+#endif
+}
+
+void DeferredCompositPass::setVec3(const std::string& name, const glm::vec3& value) const
+{
+#ifdef DEBUG
+	if (debug) {
+		debugPass->setVec3(name, value);
+	}
+	else {
+#endif 
+		pass->setVec3(name, value);
+#ifdef DEBUG
+	}
+#endif
 }

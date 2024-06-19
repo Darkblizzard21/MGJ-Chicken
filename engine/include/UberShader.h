@@ -28,6 +28,8 @@ struct UberData
 
 	std::shared_ptr<Texture> colorTexture = nullptr;
 	std::shared_ptr<Texture> normalTexture = nullptr;
+	bool useNormalTex = true;
+
 	glm::vec2 uvOffset = { 0,0 };
 	glm::vec2 uvScale = { 1,1 };
 
@@ -42,13 +44,17 @@ struct UberData
 struct UberVertex {
 	glm::vec2 pos;
 	glm::vec2 tex;
+	glm::vec3 normal;
 
-	// Initalizes tex and pos on the same value
+	UberVertex();
+	// Initalizes tex and pos on the same value and default normal
 	UberVertex(const glm::vec2& pos);
 	UberVertex(const float& x, const float& y);
-	// Initalizes pos and tex
+	// Initalizes pos and tex and default normal
 	UberVertex(const glm::vec2& pos, const glm::vec2& tex);
 	UberVertex(const float& x, const float& y, const float& u, const float& v);
+	// Initalizes pos and tex and normal
+	UberVertex(const glm::vec2& pos, const glm::vec2& tex, const glm::vec3& normal);
 };
 
 class UberShader

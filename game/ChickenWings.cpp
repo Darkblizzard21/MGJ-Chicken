@@ -36,6 +36,11 @@ void ChickenWings::StartUp() {
 	splineRendererL->texture = std::make_shared<Texture>(metal, 1, 1, SamplerTypes::NearestNeighbour);
 
 	quad = quadManager.CreateQuad();
+
+	// create lanterns
+	lantern = quadManager.CreateQuad(std::make_shared<Texture>("lantern.png"));
+	lantern->position.y = spline->sampleHight(0) + 0.7f;
+	lantern->scale = glm::vec2(0.5f);
 }
 
 void ChickenWings::Update()
@@ -57,6 +62,12 @@ void ChickenWings::Update()
 	xPos += deltaTime();
 	//quad->position = glm::vec2(xPos, spline->sampleHight(xPos));
 	
+	float lanterDelta = glm::abs(UberShader::cameraPosition.x - lantern->position.x);
+	if (lanterDelta > 15) {
+		lantern->position.x += 2 * lanterDelta;
+		lantern->position.y = spline->sampleHight(lantern->position.x) + 1.7f;
+		compositPass_.lightPos = lantern->position;
+	}
 }
 
 void ChickenWings::RenderObjects()

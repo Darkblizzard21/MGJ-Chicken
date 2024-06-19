@@ -22,6 +22,9 @@ private:
 	std::unique_ptr<SplineRenderer> splineRendererL;
 
 	std::shared_ptr<Quad> quad;
+
+	std::shared_ptr<Quad> lantern;
+
 	float xPos = -8;
 	float slopehight = 0;
 	float timeToNextExpansion = 0;

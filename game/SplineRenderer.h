@@ -46,8 +46,8 @@ private:
 	};
 
 	SplineSegment CreateSplineSegmentFor(const int& i);
-	
-	glm::vec4 GetVertices(float xt, int n, bool useT = false);
+
+	std::pair<UberVertex, UberVertex> GetVertices(float xt, int n, bool useT = false);
 
 	std::vector<SplineSegment> splineSegments;
 };

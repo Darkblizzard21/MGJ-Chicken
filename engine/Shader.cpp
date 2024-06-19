@@ -104,6 +104,14 @@ void Shader::setVec2(const std::string& name, const glm::vec2& value) const {
     glUniform2fv(location, 1, glm::value_ptr(value));
 }
 
+void Shader::setVec3(const std::string& name, const glm::vec3& value) const {
+	const auto location = glGetUniformLocation(ID, name.c_str());
+	if (location == -1) {
+		std::cout << "waring: There is no uniform named " << name << " on shader " << location << "." << std::endl;
+	}
+	glUniform3fv(location, 1, glm::value_ptr(value));
+}
+
 void Shader::setMat4x4(const std::string& name, const glm::mat4x4& value) const
 {
 	const auto location = glGetUniformLocation(ID, name.c_str());
