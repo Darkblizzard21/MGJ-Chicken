@@ -13,12 +13,15 @@ void ChickenWings::StartUp() {
 
 	minecart = std::make_unique<Minecart>();
 	spline = std::make_shared<Spline>();
-	for (int32_t i = -44; i < 23; i++)
+	for (int32_t i = -4; i < 10; i++)
 	{
-		spline->addNextPoint({ i*2,  3  * (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))});
+		spline->addNextPoint({ i*6,  (2  * (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))) - slopehight});
+		slopehight += 1;
+		splineRendererB = std::make_unique<SplineRenderer>(spline);
+		splineRendererB->ybaseLine = -10.8f - slopehight;
+		splineSegmentCounter = i;
+
 	}
-	splineRendererB = std::make_unique<SplineRenderer>(spline);
-	splineRendererB->ybaseLine = -0.8f;
 
 	std::vector<glm::vec3> ground = { glm::vec3(74 / 255.f, 39 / 255.f, 9/255.f) };
 	splineRendererB->texture = std::make_shared<Texture>(ground, 1, 1, SamplerTypes::NearestNeighbour);
@@ -37,6 +40,17 @@ void ChickenWings::Update()
 	minecart->update();
  	//UberShader::cameraPosition.x += deltaTime();
 	UberShader::cameraPosition.x = minecart->quad->position.x;
+	UberShader::cameraPosition.y = minecart->quad->position.y;
+
+	glm::vec2 v = spline->splinePoints[spline->splinePoints.size() - 1];
+	float mincartDistanceToLastSplinePoint = glm::distance(v, minecart->quad->position);
+
+	if (mincartDistanceToLastSplinePoint < 25.0) {
+		spline->addNextPoint({ splineSegmentCounter * 6,  (2 * (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))) - slopehight });
+		slopehight += 1;
+		splineSegmentCounter++;
+	}
+
 	xPos += deltaTime();
 	//quad->position = glm::vec2(xPos, spline->sampleHight(xPos));
 	

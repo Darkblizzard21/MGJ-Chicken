@@ -22,6 +22,7 @@ private:
 
 	std::shared_ptr<Quad> quad;
 	float xPos = -8;
-
+	float slopehight = 0;
 	float timeToNextExpansion = 0;
+	int splineSegmentCounter = -4;
 };
