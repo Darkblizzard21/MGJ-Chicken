@@ -74,7 +74,7 @@ void ChickenWings::Update()
 	glm::vec2 v = spline->splinePoints[spline->splinePoints.size() - 1];
 	float mincartDistanceToLastSplinePoint = glm::distance(v, minecart->quad->position);
 
-	if (mincartDistanceToLastSplinePoint < < glm::max(25.f, 10.f * lanternStep)) {
+	if (mincartDistanceToLastSplinePoint < glm::max(25.f, 10.f * lanternStep)) {
 		GenerateNextPointOnSpline();
 	}
 
