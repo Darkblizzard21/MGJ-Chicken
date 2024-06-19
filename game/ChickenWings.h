@@ -23,8 +23,15 @@ private:
 
 	std::shared_ptr<Quad> quad;
 
-	std::shared_ptr<Quad> lantern;
-	std::shared_ptr<PointLight> lanternL;
+	struct Lantern
+	{
+
+		std::shared_ptr<Quad> quad;
+		std::shared_ptr<PointLight> light;
+	}; 
+	Lantern lanterns[8];
+	int lastLantern = 0;
+	float lanternStep = 5.f;
 
 	float xPos = -8;
 	float slopehight = 0;

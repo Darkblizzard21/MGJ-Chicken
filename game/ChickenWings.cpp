@@ -11,14 +11,14 @@ ChickenWings::ChickenWings(std::string name)
 
 void ChickenWings::StartUp() {
 	minecart = std::make_unique<Minecart>();
-	
+
 	contactListener = std::make_unique<ContactListener>(*minecart);
 	world.SetContactListener(contactListener.get());
 
 	spline = std::make_shared<Spline>();
-	for (int32_t i = -4; i < 10; i++)
+	for (int32_t i = -4; i < 15; i++)
 	{
-		spline->addNextPoint({ i*6,  (2  * (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))) - slopehight});
+		spline->addNextPoint({ i * 6,  (2 * (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))) - slopehight });
 		slopehight += 1;
 		splineRendererB = std::make_unique<SplineRenderer>(spline);
 		splineRendererB->ybaseLine = -10.8f - slopehight;
@@ -26,7 +26,7 @@ void ChickenWings::StartUp() {
 
 	}
 
-	std::vector<glm::vec3> ground = { glm::vec3(74 / 255.f, 39 / 255.f, 9/255.f) };
+	std::vector<glm::vec3> ground = { glm::vec3(74 / 255.f, 39 / 255.f, 9 / 255.f) };
 	splineRendererB->texture = std::make_shared<Texture>(ground, 1, 1, SamplerTypes::NearestNeighbour);
 
 	splineRendererL = std::make_unique<SplineRenderer>(spline, SplineMode::Line);
@@ -38,24 +38,43 @@ void ChickenWings::StartUp() {
 	quad = quadManager.CreateQuad();
 
 	// create lanterns
-	lantern = quadManager.CreateQuad(std::make_shared<Texture>("lantern.png"));
-	lantern->position.y = spline->sampleHight(0) + 0.7f;
-	lantern->scale = glm::vec2(0.5f);
-	lanternL = compositPass_.CreatePointLight();
-	lanternL->lightPos = lantern->position;
+	auto lanternTex = std::make_shared<Texture>("lantern.png");
+	std::vector<glm::vec3> colors = {
+		 glm::vec3(0.33, 0.8, 0.33),
+		 glm::vec3(0.630, 0.00, 0.00),
+		 glm::vec3(0.386, 0.724, 0.920),
+		 glm::vec3(0.930, 0.699, 0.0651),
+		 glm::vec3(0.584, 0.950, 0.551),
+		 glm::vec3(0.830, 0.461, 0.116),
+		 glm::vec3(0.515, 0.539, 0.990),
+		 glm::vec3(0.980, 0.323, 0.860)
+	};
+	for (size_t i = 0; i < 8; i++)
+	{
+		lanterns[i].quad = quadManager.CreateQuad(lanternTex);
+		lanterns[i].quad->position.x = lanternStep * -1.5f + lanternStep * i;
+		lanterns[i].quad->position.y = spline->sampleHight(lanterns[i].quad->position.x) + 1.2f;
+		lanterns[i].quad->scale = glm::vec2(0.5f);
+
+
+		lanterns[i].light = compositPass_.CreatePointLight();
+		lanterns[i].light->lightPos = lanterns[i].quad->position;
+		lanterns[i].light->lightColor = colors[i];
+		lanterns[i].light->lightRadius = 3;
+	}
 }
 
 void ChickenWings::Update()
 {
 	minecart->update();
- 	//UberShader::cameraPosition.x += deltaTime();
+	//UberShader::cameraPosition.x += deltaTime();
 	UberShader::cameraPosition.x = minecart->quad->position.x;
 	UberShader::cameraPosition.y = minecart->quad->position.y;
 
 	glm::vec2 v = spline->splinePoints[spline->splinePoints.size() - 1];
 	float mincartDistanceToLastSplinePoint = glm::distance(v, minecart->quad->position);
 
-	if (mincartDistanceToLastSplinePoint < 25.0) {
+	if (mincartDistanceToLastSplinePoint < glm::max(25.f, 10.f * lanternStep)) {
 		spline->addNextPoint({ splineSegmentCounter * 6,  (2 * (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))) - slopehight });
 		slopehight += 1;
 		splineSegmentCounter++;
@@ -63,12 +82,13 @@ void ChickenWings::Update()
 
 	xPos += deltaTime();
 	//quad->position = glm::vec2(xPos, spline->sampleHight(xPos));
-	
-	float lanterDelta = glm::abs(UberShader::cameraPosition.x - lantern->position.x);
-	if (lanterDelta > 15) {
-		lantern->position.x += 2 * lanterDelta;
-		lantern->position.y = spline->sampleHight(lantern->position.x) + 1.7f; 
-		lanternL->lightPos = lantern->position;
+
+	while (lanterns[lastLantern].quad->position.x - UberShader::cameraPosition.x < -12)
+	{
+		lanterns[lastLantern].quad->position.x = lanterns[(lastLantern + 7) % 8].quad->position.x + lanternStep;
+		lanterns[lastLantern].quad->position.y = spline->sampleHight(lanterns[lastLantern].quad->position.x) + 0.7f;
+		lanterns[lastLantern].light->lightPos = lanterns[lastLantern].quad->position;
+		lastLantern = (lastLantern + 1) % 8;
 	}
 }
 

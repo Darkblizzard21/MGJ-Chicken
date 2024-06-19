@@ -59,15 +59,17 @@ void DeferredCompositPass::Initalize()
 		// Falloff
 		"		float falloff = distance / r;\n"
 		"		falloff = 1-falloff;\n"
+		"		falloff = (falloff * falloff + falloff) * 0.5f;\n"
 		// phong lighting
-		"       vec3 L = vec3(normalize(cameraSpace-p), 0);\n"
+		"       vec3 L = vec3(normalize(p-cameraSpace), 0);\n"
 		"		float lambertian = max(dot(N, L), 0.0);\n"
 		"       float albedo = min(lambertian + 0.5f, 1.f);\n"
-		"		color = color + c * (albedo * falloff);\n"
+		"		color = color + c * (2* albedo * falloff);\n"
 		"   }\n"
 		"}\n"
 		"\n"
-		"FragColor = vec4(texture(ColorTex, TexCoord).rgb * color,1);\n";
+		"FragColor = vec4(texture(ColorTex, TexCoord).rgb * color + 0.5f * color * color,1);\n";
+		"FragColor = vec4(color,1);\n";
 
 	const std::string fragmentShaderSource = fragmentUniforms +
 		"void main()\n"
