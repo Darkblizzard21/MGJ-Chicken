@@ -61,7 +61,7 @@ void SplineRenderer::Rebuild(bool force)
 		std::cout << "SplineRenderer::Rebuild: Spline was to short" << std::endl;
 		return;
 	}
-	Timer timer("SplineRenderer::Rebuild");
+	//Timer timer("SplineRenderer::Rebuild");
 
 	while (!splineSegments.empty() && splineSegments[0].startPoint != splinePoints[1])
 	{

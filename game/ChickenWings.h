@@ -5,6 +5,8 @@
 #include "Spline.h"
 #include "SplineRenderer.h"
 #include "ContactListener.h"
+#include "Obstacle.h"
+#include <queue>
 
 class ChickenWings : public App {
 public:
@@ -15,9 +17,13 @@ public:
 	virtual void Update() override;
 	virtual void RenderObjects() override;
 
+	std::shared_ptr<Spline> spline;
+	
 private:
 	std::unique_ptr<Minecart> minecart;
-	std::shared_ptr<Spline> spline;
+	std::queue<std::unique_ptr<Obstacle>> obstacles;
+	float timeUntilNextObstacle = 5;
+
 	std::unique_ptr<SplineRenderer> splineRendererB;
 	std::unique_ptr<SplineRenderer> splineRendererL;
 
@@ -34,8 +40,22 @@ private:
 	float lanternStep = 5.f;
 
 	float xPos = -8;
-	float slopehight = 0;
 	float timeToNextExpansion = 0;
-	int splineSegmentCounter = -4;
 	std::unique_ptr<ContactListener> contactListener;
+
+	//PCG
+	int splineSegmentCounter = -4;
+	float slopehight = 0;
+	float slopehightIncrement = 1;
+
+	float SplineXStep = 6;
+	
+	float splineLeanth = 6;
+
+	float splineHightVariance = 2;
+	int currentLevel = 1;
+
+	void GenerateNextPointOnSpline();
+
+
 };

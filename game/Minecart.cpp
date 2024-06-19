@@ -1,5 +1,4 @@
 #include "Minecart.h"
-#include <iostream>
 #include <GLFW/glfw3.h>
 #include "ChickenWings.h"
 

@@ -20,6 +20,8 @@ target_sources(game
     PickUp.cpp
     ContactListener.h
     ContactListener.cpp
+    Obstacle.h
+    Obstacle.cpp
 )
 target_link_libraries(game
     PRIVATE

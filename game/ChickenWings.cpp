@@ -18,8 +18,8 @@ void ChickenWings::StartUp() {
 	spline = std::make_shared<Spline>();
 	for (int32_t i = -4; i < 15; i++)
 	{
-		spline->addNextPoint({ i * 6,  (2 * (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))) - slopehight });
-		slopehight += 1;
+		spline->addNextPoint({ i* splineLeanth,  (splineHightVariance * (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))) - slopehight});
+		slopehight += slopehightIncrement;
 		splineRendererB = std::make_unique<SplineRenderer>(spline);
 		splineRendererB->ybaseLine = -10.8f - slopehight;
 		splineSegmentCounter = i;
@@ -74,12 +74,19 @@ void ChickenWings::Update()
 	glm::vec2 v = spline->splinePoints[spline->splinePoints.size() - 1];
 	float mincartDistanceToLastSplinePoint = glm::distance(v, minecart->quad->position);
 
-	if (mincartDistanceToLastSplinePoint < glm::max(25.f, 10.f * lanternStep)) {
-		spline->addNextPoint({ splineSegmentCounter * 6,  (2 * (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))) - slopehight });
-		slopehight += 1;
-		splineSegmentCounter++;
+	if (mincartDistanceToLastSplinePoint < < glm::max(25.f, 10.f * lanternStep)) {
+		GenerateNextPointOnSpline();
 	}
 
+	timeUntilNextObstacle -= deltaTime();
+	if (timeUntilNextObstacle <= 0) {
+		timeUntilNextObstacle = 5;
+		obstacles.push(std::make_unique<Obstacle>(UberShader::cameraPosition.x + 10));
+
+		if (obstacles.size() > 4) {
+			obstacles.pop();
+		}
+	}
 	xPos += deltaTime();
 	//quad->position = glm::vec2(xPos, spline->sampleHight(xPos));
 
@@ -96,4 +103,37 @@ void ChickenWings::RenderObjects()
 {
 	splineRendererB->Render();
 	splineRendererL->Render();
+}
+
+void ChickenWings::GenerateNextPointOnSpline()
+{
+	glm::vec2 v = spline->splinePoints[spline->splinePoints.size() - 1];
+
+	spline->addNextPoint({v.x + SplineXStep, (splineHightVariance * (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))) - slopehight });
+
+	//spline->addNextPoint({ splineSegmentCounter * splineLeanth,  (splineHightVariance * (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))) - slopehight });
+	slopehight += slopehightIncrement;
+	splineSegmentCounter++;
+	splineRendererB->ybaseLine = -10.8f - slopehight;
+
+	if (splineSegmentCounter > 20 && splineSegmentCounter % 10 == 0)
+	{
+		splineHightVariance += 0.5;
+
+		std::cout << "Next Level" << std::endl;
+		if (slopehightIncrement < 2.5)
+		{
+			slopehightIncrement += 0.5;
+		}
+		if (SplineXStep < 9)
+		{
+			SplineXStep += 0.5;
+		}
+		if (splineHightVariance < 5)
+		{
+			splineHightVariance += 0.5;
+			//splineHightVariance
+		}
+
+	}
 }
