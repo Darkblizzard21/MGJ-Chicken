@@ -24,7 +24,7 @@ public:
 	void Initialize();
 
 	std::shared_ptr<Quad> CreateQuad();
-	std::shared_ptr<Quad> CreateQuad(std::shared_ptr<Texture> colorTexture);
+	std::shared_ptr<Quad> CreateQuad(std::shared_ptr<Texture> colorTexture, std::shared_ptr<Texture> normalTexture = nullptr);
 
 	void RenderQuads();
 

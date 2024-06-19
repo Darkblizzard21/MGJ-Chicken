@@ -4,7 +4,7 @@
 #include "ChickenWings.h"
 
 Minecart::Minecart() {
-	quad = ChickenWings::game.quadManager.CreateQuad(std::make_shared<Texture>("Minecart.png"));
+	quad = ChickenWings::game.quadManager.CreateQuad(std::make_shared<Texture>("Minecart.png"), std::make_shared<Texture>("MinecartN.png"));
 
 	b2BodyDef bodyDef;
 	bodyDef.type = b2_dynamicBody;
@@ -51,7 +51,7 @@ void Minecart::update()
 	b2Vec2 phyisicsPos = body->GetPosition();
 	quad->position = glm::vec2(phyisicsPos.x, phyisicsPos.y);
 	quad->rotation = body->GetAngle();
-	
+
 	// std::cout << quad->position.x << " | " << quad->position.y << std::endl;
 
 	if (!wasSpacePressed && glfwGetKey(ChickenWings::game.window, GLFW_KEY_SPACE)) {
@@ -64,7 +64,7 @@ void Minecart::update()
 		body->ApplyForceToCenter(forceVector, true);
 		//body->ApplyAngularImpulse(0.2f, true);
 	}
-	
+
 	if (!glfwGetKey(ChickenWings::game.window, GLFW_KEY_SPACE))
 		wasSpacePressed = false;
 }

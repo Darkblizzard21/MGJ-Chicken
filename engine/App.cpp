@@ -74,6 +74,7 @@ App::App(std::string title, int width, int height) : title_(title), width_(width
 
 	// set up composit pass
 	compositPass_.Initalize();
+	compositPass_.EnableDebug();
 
 	// enalbe depth	
 	glEnable(GL_DEPTH_TEST);
@@ -101,10 +102,25 @@ void App::run()
 	gameStart_ = std::chrono::steady_clock::now();
 	lastFrame_ = gameStart_;
 
+
+#ifdef DEBUG
+	float f1FlipTime = -1.f;
+#endif 
 	while (!glfwWindowShouldClose(window))
 	{
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, true);
+
+#ifdef DEBUG
+		if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS && f1FlipTime < 0.0f) {
+			f1FlipTime = 0.2;
+			compositPass_.FlipDebug();
+			std::cout << "flip" << std::endl;
+		}
+		else {
+			f1FlipTime = std::max(f1FlipTime - deltaTime(), -1.f);
+		}
+#endif
 
 		// update physics
 		Timer physicsT("Loop::Physiks");

@@ -25,6 +25,10 @@ void DeferredCompositPass::Initalize()
 		"   gl_Position = vec4(aPos, 0.5, 1.0);\n"
 		"   TexCoord = aTex;\n"
 		"}\0";
+
+	const std::string fragmentMain = ""
+		"   FragColor = vec4(texture(ColorTex, TexCoord).rgb,1);\n";
+
 	const std::string fragmentShaderSource = "#version 330 core\n"
 		"in vec2 TexCoord;\n"
 		"\n"
@@ -36,10 +40,45 @@ void DeferredCompositPass::Initalize()
 		"\n"
 		"void main()\n"
 		"{\n"
-		"   FragColor = vec4(texture(ColorTex, TexCoord).rgb,1);\n"
+		+ fragmentMain +
 		"}\n\0";
 
 	pass = std::make_unique<Shader>(vertexShaderSource, fragmentShaderSource);
+
+
+#ifdef DEBUG
+	const std::string debugfragmentShaderSource = "#version 330 core\n"
+		"in vec2 TexCoord;\n"
+		"\n"
+		"uniform sampler2D ColorTex;\n"
+		"uniform sampler2D NormalTex;\n"
+		"uniform sampler2D PositionTex;\n"
+		"\n"
+		"out vec4 FragColor;\n"
+		"\n"
+		"void main()\n"
+		"{\n"
+		"	if(TexCoord.x < 0.5f)\n"
+		"	{\n"
+		"		if(TexCoord.y > 0.5f)\n"
+		"		{\n"
+		"			FragColor = vec4(texture(ColorTex, vec2(mod(TexCoord.x, 0.5f), mod(TexCoord.y, 0.5f)) * 2).rgb,1);\n"
+		"		} else {\n"
+		"			vec3 pos = texture(PositionTex, vec2(mod(TexCoord.x, 0.5f), mod(TexCoord.y, 0.5f)) * 2).rgb;\n"
+		"			FragColor = vec4(mod(pos.x, 1.f), mod(pos.y, 1.f), mod(pos.z, 1.f), 1);\n"
+		"		}\n"
+		"	} else {\n"
+		"		if(TexCoord.y > 0.5f)\n"
+		"		{\n"
+		"			FragColor = vec4(texture(NormalTex, vec2(mod(TexCoord.x, 0.5f), mod(TexCoord.y, 0.5f)) * 2).rgb * 0.5f + 0.5f,1);\n"
+		"		} else {\n"
+		"			vec2 TexCoord = vec2(mod(TexCoord.x, 0.5f), mod(TexCoord.y, 0.5f)) * 2;"
+		+ fragmentMain +
+		"		}\n"
+		"	}\n"
+		"}\n\0";
+	debugPass = std::make_unique<Shader>(vertexShaderSource, debugfragmentShaderSource);
+#endif
 
 	// set up mesh
 	std::vector<glm::vec4> vertices = {
@@ -79,22 +118,37 @@ void DeferredCompositPass::Initalize()
 void DeferredCompositPass::Execute(const int& colorTex, const int& normalTex, const int& posTex)
 {
 	assert(pass != nullptr);
+
 	pass->use();
+#ifdef DEBUG
+	if (debug) {
+		debugPass->use();
+	}
+#endif
 
 	glActiveTexture(GL_TEXTURE0);
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, colorTex);
 	pass->setInt("ColorTex", 0);
+#ifdef DEBUG
+	debugPass->setInt("ColorTex", 0);
+#endif
 
 	glActiveTexture(GL_TEXTURE1);
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, normalTex);
 	pass->setInt("NormalTex", 1);
+#ifdef DEBUG
+	debugPass->setInt("NormalTex", 1);
+#endif
 
 	glActiveTexture(GL_TEXTURE2);
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, posTex);
 	pass->setInt("PositionTex", 2);
+#ifdef DEBUG
+	debugPass->setInt("PositionTex", 2);
+#endif
 
 
 	glBindVertexArray(VAO);

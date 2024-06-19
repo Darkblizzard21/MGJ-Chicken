@@ -4,6 +4,7 @@
 
 std::unique_ptr<Shader> UberShader::uber = nullptr;
 std::unique_ptr<Texture> UberShader::fallbackTexture = nullptr;
+std::unique_ptr<Texture> UberShader::fallbackNormals = nullptr;
 glm::vec2 UberShader::cameraPosition = { 0,4.5 };
 
 UberVertex::UberVertex(const glm::vec2& pos)
@@ -45,6 +46,7 @@ void UberShader::Initialize()
 	const std::string vertexShaderSource = "#version 330 core\n"
 		"layout (location = 0) in vec2 aPos;\n"
 		"layout (location = 1) in vec2 aTex;\n"
+		"uniform vec2  cameraOffset;\n"
 		"uniform vec2  pos; \n"
 		"uniform vec2  scale; \n"
 		"uniform vec2  uvOffset;\n"
@@ -61,7 +63,7 @@ void UberShader::Initialize()
 		"   float rotX = cos(rotation) * aPos.x - sin(rotation) * aPos.y;\n"
 		"   float rotY = sin(rotation) * aPos.x + cos(rotation) * aPos.y;\n"
 		"	vec2 wPos = vec2(rotX, rotY) * scale + pos;\n"
-		"   vec2 sPos =  wPos * vec2(1.0/8.0, 1.0/4.5);\n"
+		"   vec2 sPos =  (wPos + cameraOffset) * vec2(1.0/8.0, 1.0/4.5);\n"
 		"   gl_Position = vec4(sPos.x, sPos.y, depth, 1.0);\n"
 		"   TexCoord = (aTex + uvOffset) * uvScale;\n"
 		"   FragPos  = wPos;\n"
@@ -75,6 +77,7 @@ void UberShader::Initialize()
 		"uniform bool useAlpha;\n"
 		"uniform float alphaThreshold;\n"
 		"uniform sampler2D ColorTex;\n"
+		"uniform sampler2D NormalTex;\n"
 		"\n"
 		"layout(location = 0) out vec3 gPosition;\n"
 		"layout(location = 1) out vec3 gNormal;\n"
@@ -88,7 +91,7 @@ void UberShader::Initialize()
 		"		if(alpha < alphaThreshold) discard;\n"
 		"   }\n"
 		"   gPosition = vec3(FragPos,1);\n"
-		"   gNormal = Normal;\n"
+		"   gNormal = (texture(NormalTex, TexCoord).rgb - 0.5f) * 2;\n"
 		"   gAlbedo = texture(ColorTex, TexCoord).rgb;\n"
 		"}\n\0";
 
@@ -96,6 +99,8 @@ void UberShader::Initialize()
 
 	std::vector<glm::vec3> fallback = { glm::vec3(1.0, 0.301f, 0) , glm::vec3(1.0), glm::vec3(1.0), glm::vec3(1.0, 0.301f, 0) };
 	fallbackTexture = std::make_unique<Texture>(fallback, 2, 2, SamplerTypes::NearestNeighbour);
+	fallback = { glm::vec3(0.5f, 0.5f, 1.f) };
+	fallbackNormals = std::make_unique<Texture>(fallback, 1, 1, SamplerTypes::NearestNeighbour);
 }
 
 void UberShader::DrawElements(const UberData& settings, const MeshBuffers& buffers)
@@ -107,9 +112,10 @@ void UberShader::DrawElements(const UberData& settings, const unsigned int& VAO,
 {
 	assert(uber != nullptr);
 	Texture* colorTex = settings.colorTexture != nullptr ? settings.colorTexture.get() : fallbackTexture.get();
-
+	Texture* normalTex = settings.normalTexture != nullptr ? settings.normalTexture.get() : fallbackNormals.get();
 	uber->use();
-	uber->setVec2("pos", settings.position - cameraPosition);
+	uber->setVec2("cameraOffset", -cameraPosition);
+	uber->setVec2("pos", settings.position);
 	uber->setVec2("scale", settings.scale);
 	uber->setFloat("rotation", settings.rotation);
 	uber->setFloat("depth", 1.f - (settings.layer * 1.f / std::numeric_limits<uint8_t>::max()));
@@ -121,6 +127,8 @@ void UberShader::DrawElements(const UberData& settings, const unsigned int& VAO,
 	uber->setVec2("uvScale", settings.uvScale);
 	uber->setInt("ColorTex", 0);
 	colorTex->Bind(0);
+	uber->setInt("NormalTex", 1);
+	normalTex->Bind(1);
 
 	if (settings.wireframe) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
