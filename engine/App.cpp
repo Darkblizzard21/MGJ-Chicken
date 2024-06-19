@@ -17,6 +17,7 @@ App::App(std::string title, int width, int height) : title_(title), width_(width
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// setup window
+	glfwWindowHint(GLFW_SAMPLES, 4);
 	window = glfwCreateWindow(width, height, title_.c_str(), NULL, NULL);
 
 	//glfwSetWindowAspectRatio(window, width, height);
@@ -70,6 +71,9 @@ App::App(std::string title, int width, int height) : title_(title), width_(width
 	// enalbe depth	
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
+
+	// multisampling
+	glEnable(GL_MULTISAMPLE);
 
 	UberShader::Initialize();
 	// setup game systems

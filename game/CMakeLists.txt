@@ -18,6 +18,8 @@ target_sources(game
     SplineRenderer.cpp
     PickUp.h
     PickUp.cpp
+    ContactListener.h
+    ContactListener.cpp
 )
 target_link_libraries(game
     PRIVATE

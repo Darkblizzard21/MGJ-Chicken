@@ -184,6 +184,7 @@ glm::vec4 SplineRenderer::GetVertices(float xt, int n, bool useT)
 		result.y = l.y;
 		result.z = u.x;
 		result.w = u.y;
+		break;
 	}
 	default:
 		std::cout << "Unkown Spline Type!" << std::endl;

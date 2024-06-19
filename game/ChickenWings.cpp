@@ -10,8 +10,11 @@ ChickenWings::ChickenWings(std::string name)
 }
 
 void ChickenWings::StartUp() {
-
 	minecart = std::make_unique<Minecart>();
+	
+	contactListener = std::make_unique<ContactListener>(*minecart);
+	world.SetContactListener(contactListener.get());
+
 	spline = std::make_shared<Spline>();
 	for (int32_t i = -4; i < 10; i++)
 	{
