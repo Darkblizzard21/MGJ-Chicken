@@ -27,6 +27,7 @@ struct UberData
 	float tinfluence = 0.f;
 
 	std::shared_ptr<Texture> colorTexture = nullptr;
+	std::shared_ptr<Texture> normalTexture = nullptr;
 	glm::vec2 uvOffset = { 0,0 };
 	glm::vec2 uvScale = { 1,1 };
 
@@ -56,6 +57,8 @@ private:
 	UberShader() = delete;
 	static std::unique_ptr<Shader> uber;
 	static std::unique_ptr<Texture> fallbackTexture;
+	static std::unique_ptr<Texture> fallbackNormals;
+
 public:
 	static glm::vec2 cameraPosition;
 

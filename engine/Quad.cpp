@@ -25,17 +25,18 @@ std::shared_ptr<Quad> QuadManager::CreateQuad()
 	return quad;
 }
 
-std::shared_ptr<Quad> QuadManager::CreateQuad(std::shared_ptr<Texture> colorTexture)
+std::shared_ptr<Quad> QuadManager::CreateQuad(std::shared_ptr<Texture> colorTexture, std::shared_ptr<Texture> normalTexture)
 {
 	auto res = CreateQuad();
 	res->colorTexture = colorTexture;
+	res->normalTexture = normalTexture;
 	return res;
 }
 
 void QuadManager::RenderQuads()
 {
 	if (!initialized) throw "no initialized";
-	std::vector<size_t> toremove;
+	std::vector<size_t> toremove = {};
 	for (size_t i = 0; i < quads.size(); i++)
 	{
 		if (quads[i].use_count() == 1) {

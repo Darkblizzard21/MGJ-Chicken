@@ -51,6 +51,16 @@ void ChickenWings::Update()
 	if (mincartDistanceToLastSplinePoint < 25.0) {
 		GenerateNextPointOnSpline();
 	}
+
+	timeUntilNextObstacle -= deltaTime();
+	if (timeUntilNextObstacle <= 0) {
+		timeUntilNextObstacle = 5;
+		obstacles.push(std::make_unique<Obstacle>(UberShader::cameraPosition.x + 10));
+
+		if (obstacles.size() > 4) {
+			obstacles.pop();
+		}
+	}
 	xPos += deltaTime();
 	//quad->position = glm::vec2(xPos, spline->sampleHight(xPos));
 	

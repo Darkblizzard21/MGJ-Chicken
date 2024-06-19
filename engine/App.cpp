@@ -17,7 +17,6 @@ App::App(std::string title, int width, int height) : title_(title), width_(width
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// setup window
-	glfwWindowHint(GLFW_SAMPLES, 4);
 	window = glfwCreateWindow(width, height, title_.c_str(), NULL, NULL);
 
 	//glfwSetWindowAspectRatio(window, width, height);
@@ -66,14 +65,20 @@ App::App(std::string title, int width, int height) : title_(title), width_(width
 				const auto w = (height / 9.f) * 16;
 				app->hPadding_ = (width - w) / 2;
 			}
+
+			app->ResizeBuffers(width, height);
 		});
+
+	// setup buffers
+	ResizeBuffers(width, height);
+
+	// set up composit pass
+	compositPass_.Initalize();
+	compositPass_.EnableDebug();
 
 	// enalbe depth	
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
-
-	// multisampling
-	glEnable(GL_MULTISAMPLE);
 
 	UberShader::Initialize();
 	// setup game systems
@@ -85,7 +90,8 @@ App::App(std::string title, int width, int height) : title_(title), width_(width
 
 App::~App()
 {
-	Terminate();
+	CleanBuffers();
+
 	glfwTerminate();
 }
 
@@ -96,10 +102,25 @@ void App::run()
 	gameStart_ = std::chrono::steady_clock::now();
 	lastFrame_ = gameStart_;
 
+
+#ifdef DEBUG
+	float f1FlipTime = -1.f;
+#endif 
 	while (!glfwWindowShouldClose(window))
 	{
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, true);
+
+#ifdef DEBUG
+		if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS && f1FlipTime < 0.0f) {
+			f1FlipTime = 0.2;
+			compositPass_.FlipDebug();
+			std::cout << "flip" << std::endl;
+		}
+		else {
+			f1FlipTime = std::max(f1FlipTime - deltaTime(), -1.f);
+		}
+#endif
 
 		// update physics
 		Timer physicsT("Loop::Physiks");
@@ -115,10 +136,14 @@ void App::run()
 
 		Timer renderT("Loop::Render");
 
-		// render
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glScissor(0, 0, width_, height_);
 		glClearColor(0.f, 0.f, 0.f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		// 1. geometry pass
+		glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 
 		glScissor(hPadding_, vPadding_, width_ - 2 * hPadding_, height_ - 2 * vPadding_);
 		glViewport(hPadding_, vPadding_, width_ - 2 * hPadding_, height_ - 2 * vPadding_);
@@ -132,6 +157,11 @@ void App::run()
 		Timer renderTQ("Loop::Render::RenderQuads");
 		quadManager.RenderQuads();
 		renderTQ.finish();
+
+		// 2. lighting pass
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		compositPass_.Execute(gAlbedo, gNormal, gPosition);
 
 		// finish
 		Timer renderTS("Loop::Render::glfwSwapBuffers");
@@ -164,6 +194,8 @@ void App::run()
 		gameTime_ = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - gameStart_).count() * 0.001f;
 		lastFrame_ = currentTime;
 	}
+
+	Terminate();
 }
 
 float App::deltaTime()
@@ -185,5 +217,61 @@ void App::SetTitel(std::string title)
 {
 	title_ = title;
 	glfwSetWindowTitle(window, title.c_str());
+}
+
+void App::ResizeBuffers(const int& width, const int& height)
+{
+	CleanBuffers();
+
+	glGenFramebuffers(1, &gBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+
+	// - position color buffer
+	glGenTextures(1, &gPosition);
+	glBindTexture(GL_TEXTURE_2D, gPosition);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gPosition, 0);
+
+	// - normal color buffer
+	glGenTextures(1, &gNormal);
+	glBindTexture(GL_TEXTURE_2D, gNormal);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gNormal, 0);
+
+	// - color + specular color buffer
+	glGenTextures(1, &gAlbedo);
+	glBindTexture(GL_TEXTURE_2D, gAlbedo);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gAlbedo, 0);
+
+	// bind
+	unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+	glDrawBuffers(3, attachments);
+}
+
+void App::CleanBuffers()
+{
+	if (gBuffer != -1) {
+		glDeleteFramebuffers(1, &gBuffer);
+		gBuffer = -1;
+	}
+	if (gPosition != -1) {
+		glDeleteTextures(1, &gPosition);
+		gPosition = -1;
+	}
+	if (gNormal != -1) {
+		glDeleteTextures(1, &gNormal);
+		gNormal = -1;
+	}
+	if (gAlbedo != -1) {
+		glDeleteTextures(1, &gAlbedo);
+		gAlbedo = -1;
+	}
 }
 
