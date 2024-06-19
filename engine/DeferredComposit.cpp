@@ -3,6 +3,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include "UberShader.h"
+#include <iostream>
 
 DeferredCompositPass::~DeferredCompositPass()
 {
@@ -26,7 +27,7 @@ void DeferredCompositPass::Initalize()
 		"   TexCoord = aTex;\n"
 		"}\0";
 
-
+	const std::string maxNum = std::to_string(maxLightCount);
 	const std::string fragmentUniforms = "#version 330 core\n"
 		"in vec2 TexCoord;\n"
 		"\n"
@@ -34,24 +35,39 @@ void DeferredCompositPass::Initalize()
 		"uniform sampler2D NormalTex;\n"
 		"uniform sampler2D LayerTex;\n"
 		"\n"
-		"uniform vec3  lightColor;\n"
-		"uniform vec2  lightPos;\n"
-		"uniform float lightRadius;\n"
+		"uniform int   lightCount;"
+		"uniform vec3  lightColor[" + maxNum + "];\n"
+		"uniform vec2  lightPos[" + maxNum + "];\n"
+		"uniform float lightRadius[" + maxNum + "];\n"
 		"\n"
 		"out vec4 FragColor;\n";
 
 	const std::string fragmentMain = ""
+		"   vec3 N = texture(NormalTex, TexCoord).rgb;\n"
+		// reconstruct screen space
 		"   vec2 screenSpace = (TexCoord - vec2(0.5f)) * 2;\n"
 		"   vec2 cameraSpace = screenSpace * vec2(8.0, 4.5);\n"
-		"   float distance = length(cameraSpace-lightPos);\n"
-		"   if(distance <= lightRadius)\n"
+		// lighting
+		"vec3 color = vec3(0.1);\n"
+		"for (int i = 0; i < lightCount; i++) {\n"
+		"   vec2  p = lightPos[i];\n"
+		"   float r = lightRadius[i];\n"
+		"   float distance = length(cameraSpace-p);\n"
+		"   if(distance <= lightRadius[i])\n"
 		"   {\n"
-		"		float d = distance / lightRadius;\n"
-		"		d = 1-d;\n"
-		"		FragColor = vec4(texture(ColorTex, TexCoord).rgb * lightColor * d,1);\n"
-		"   } else {\n"
-		"		FragColor = vec4(0,0,0,1);\n"
-		"   }\n";
+		"		vec3 c = lightColor[i];\n"
+		// Falloff
+		"		float falloff = distance / r;\n"
+		"		falloff = 1-falloff;\n"
+		// phong lighting
+		"       vec3 L = vec3(normalize(cameraSpace-p), 0);\n"
+		"		float lambertian = max(dot(N, L), 0.0);\n"
+		"       float albedo = min(lambertian + 0.5f, 1.f);\n"
+		"		color = color + c * (albedo * falloff);\n"
+		"   }\n"
+		"}\n"
+		"\n"
+		"FragColor = vec4(texture(ColorTex, TexCoord).rgb * color,1);\n";
 
 	const std::string fragmentShaderSource = fragmentUniforms +
 		"void main()\n"
@@ -66,7 +82,7 @@ void DeferredCompositPass::Initalize()
 	const std::string debugfragmentShaderSource = fragmentUniforms +
 		"void main()\n"
 		"{\n"
-		"	vec2 tCord2 = vec2(mod(TexCoord.x, 0.5f), mod(TexCoord.y, 0.5f)) * 2;"
+		"	vec2 tCord2 = vec2(mod(TexCoord.x, 0.5f), mod(TexCoord.y, 0.5f)) * 2;\n"
 		"	if(TexCoord.x < 0.5f)\n"
 		"	{\n"
 		"		if(TexCoord.y > 0.5f)\n"
@@ -122,6 +138,14 @@ void DeferredCompositPass::Initalize()
 	// TexCords
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+
+	// reserve vectors
+	pointLights.reserve(maxLightCount);
+
+	lightPosV.reserve(maxLightCount);
+	lightColorV.reserve(maxLightCount);
+	lightRadiusV.reserve(maxLightCount);
+	toDelete.reserve(maxLightCount);
 }
 
 void DeferredCompositPass::Execute(const int& colorTex, const int& normalTex, const int& posTex)
@@ -150,9 +174,12 @@ void DeferredCompositPass::Execute(const int& colorTex, const int& normalTex, co
 	glBindTexture(GL_TEXTURE_2D, posTex);
 	setInt("LayerTex", 2);
 
-	setVec3("lightColor", lightColor);
-	setVec2("lightPos", lightPos - UberShader::cameraPosition);
-	setFloat("lightRadius", lightRadius);
+
+	UpdateWorkingVars();
+	setInt("lightCount", pointLights.size());
+	setVec3V("lightColor", lightColorV);
+	setVec2V("lightPos", lightPosV);
+	setFloatV("lightRadius", lightRadiusV);
 
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -177,6 +204,49 @@ void DeferredCompositPass::CleanUp()
 	VBO = -1;
 	VAO = -1;
 	EBO = -1;
+}
+
+std::shared_ptr<PointLight> DeferredCompositPass::CreatePointLight()
+{
+	if (maxLightCount <= pointLights.size()) {
+		std::cout << "The max amount of pointlights is already reached. Handing out pointer to first pointight again." << std::endl;
+		return pointLights[0];
+	}
+
+	PointLight* ptr = new PointLight();
+	std::shared_ptr<PointLight> light = std::shared_ptr<PointLight>(ptr);
+	pointLights.push_back(light);
+	return light;
+}
+
+void DeferredCompositPass::UpdateWorkingVars()
+{
+
+	lightPosV.clear();
+	lightColorV.clear();
+	lightRadiusV.clear();
+
+	std::vector<size_t> toremove = {};
+	for (size_t i = 0; i < pointLights.size(); i++)
+	{
+		if (pointLights[i].use_count() == 1) {
+			toremove.push_back(i);
+			continue;
+		}
+
+		// do shit
+		lightPosV.push_back(pointLights[i]->lightPos - UberShader::cameraPosition);
+		lightColorV.push_back(pointLights[i]->lightColor);
+		lightRadiusV.push_back(pointLights[i]->lightRadius);
+	}
+
+	size_t offset = 0;
+	for (size_t i = 0; i < toremove.size(); i++)
+	{
+		pointLights.erase(pointLights.begin() + (toremove[i] - offset));
+		offset++;
+	}
+	toDelete.clear();
 }
 
 void DeferredCompositPass::setInt(const std::string& name, const int& value) {
@@ -231,6 +301,48 @@ void DeferredCompositPass::setVec3(const std::string& name, const glm::vec3& val
 	else {
 #endif 
 		pass->setVec3(name, value);
+#ifdef DEBUG
+	}
+#endif
+}
+
+void DeferredCompositPass::setFloatV(const std::string& name, const std::vector<float>& value) const
+{
+#ifdef DEBUG
+	if (debug) {
+		debugPass->setFloatV(name, value);
+	}
+	else {
+#endif 
+		pass->setFloatV(name, value);
+#ifdef DEBUG
+	}
+#endif
+}
+
+void DeferredCompositPass::setVec2V(const std::string& name, const std::vector<glm::vec2>& value) const
+{
+#ifdef DEBUG
+	if (debug) {
+		debugPass->setVec2V(name, value);
+	}
+	else {
+#endif 
+		pass->setVec2V(name, value);
+#ifdef DEBUG
+	}
+#endif
+}
+
+void DeferredCompositPass::setVec3V(const std::string& name, const std::vector<glm::vec3>& value) const
+{
+#ifdef DEBUG
+	if (debug) {
+		debugPass->setVec3V(name, value);
+	}
+	else {
+#endif 
+		pass->setVec3V(name, value);
 #ifdef DEBUG
 	}
 #endif

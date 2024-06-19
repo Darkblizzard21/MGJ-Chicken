@@ -24,6 +24,7 @@ private:
 	std::shared_ptr<Quad> quad;
 
 	std::shared_ptr<Quad> lantern;
+	std::shared_ptr<PointLight> lanternL;
 
 	float xPos = -8;
 	float slopehight = 0;
