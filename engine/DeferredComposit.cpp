@@ -32,7 +32,7 @@ void DeferredCompositPass::Initalize()
 		"\n"
 		"uniform sampler2D ColorTex;\n"
 		"uniform sampler2D NormalTex;\n"
-		"uniform sampler2D PositionTex;\n"
+		"uniform sampler2D LayerTex;\n"
 		"\n"
 		"uniform vec3  lightColor;\n"
 		"uniform vec2  lightPos;\n"
@@ -41,8 +41,9 @@ void DeferredCompositPass::Initalize()
 		"out vec4 FragColor;\n";
 
 	const std::string fragmentMain = ""
-		"   vec2 pos = texture(PositionTex, TexCoord).xy;\n"
-		"   float distance = length(pos-lightPos);\n"
+		"   vec2 screenSpace = (TexCoord - vec2(0.5f)) * 2;\n"
+		"   vec2 cameraSpace = screenSpace * vec2(8.0, 4.5);\n"
+		"   float distance = length(cameraSpace-lightPos);\n"
 		"   if(distance <= lightRadius)\n"
 		"   {\n"
 		"		float d = distance / lightRadius;\n"
@@ -65,19 +66,20 @@ void DeferredCompositPass::Initalize()
 	const std::string debugfragmentShaderSource = fragmentUniforms +
 		"void main()\n"
 		"{\n"
+		"	vec2 tCord2 = vec2(mod(TexCoord.x, 0.5f), mod(TexCoord.y, 0.5f)) * 2;"
 		"	if(TexCoord.x < 0.5f)\n"
 		"	{\n"
 		"		if(TexCoord.y > 0.5f)\n"
 		"		{\n"
-		"			FragColor = vec4(texture(ColorTex, vec2(mod(TexCoord.x, 0.5f), mod(TexCoord.y, 0.5f)) * 2).rgb,1);\n"
+		"			FragColor = vec4(texture(ColorTex, tCord2).rgb,1);\n"
 		"		} else {\n"
-		"			vec3 pos = texture(PositionTex, vec2(mod(TexCoord.x, 0.5f), mod(TexCoord.y, 0.5f)) * 2).rgb;\n"
-		"			FragColor = vec4(mod(pos.x, 1.f), mod(pos.y, 1.f), mod(pos.z, 1.f), 1);\n"
+		"			float l = texture(LayerTex, tCord2).r;\n"
+		"			FragColor = vec4(l, l, l, 1);\n"
 		"		}\n"
 		"	} else {\n"
 		"		if(TexCoord.y > 0.5f)\n"
 		"		{\n"
-		"			FragColor = vec4(texture(NormalTex, vec2(mod(TexCoord.x, 0.5f), mod(TexCoord.y, 0.5f)) * 2).rgb * 0.5f + 0.5f,1);\n"
+		"			FragColor = vec4(texture(NormalTex, tCord2).rgb * 0.5f + 0.5f,1);\n"
 		"		} else {\n"
 		"			vec2 TexCoord = vec2(mod(TexCoord.x, 0.5f), mod(TexCoord.y, 0.5f)) * 2;"
 		+ fragmentMain +
@@ -146,7 +148,7 @@ void DeferredCompositPass::Execute(const int& colorTex, const int& normalTex, co
 	glActiveTexture(GL_TEXTURE2);
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, posTex);
-	setInt("PositionTex", 2);
+	setInt("LayerTex", 2);
 
 	setVec3("lightColor", lightColor);
 	setVec2("lightPos", lightPos - UberShader::cameraPosition);

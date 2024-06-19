@@ -76,7 +76,6 @@ void UberShader::Initialize()
 		"uniform bool useNormalTex;\n"
 		"\n"
 		"out vec2 TexCoord;\n"
-		"out vec2 FragPos;\n"
 		"out vec3 Normal;\n"
 		"\n"
 		"void main()\n"
@@ -88,9 +87,8 @@ void UberShader::Initialize()
 		"	vec2 wPos = vec2(rotX, rotY) * scale + pos;\n"
 		"   vec2 sPos =  (wPos + cameraOffset) * vec2(1.0/8.0, 1.0/4.5);\n"
 		"   gl_Position = vec4(sPos.x, sPos.y, depth, 1.0);\n"
-		// fragmaent pos and texture coords
+		// texture coords
 		"   TexCoord = (aTex + uvOffset) * uvScale;\n"
-		"   FragPos  = wPos + cameraOffset;\n"
 	    // Normals
 		"   if(!useNormalTex)\n"
 		"	{\n"
@@ -116,9 +114,9 @@ void UberShader::Initialize()
 		"uniform sampler2D NormalTex;\n"
 		"uniform float sinR; \n"
 		"uniform float cosR; \n"
-		"uniform float depth;\n"
+		"uniform int depthInt;\n"
 		"\n"
-		"layout(location = 0) out vec3 gPosition;\n"
+		"layout(location = 0) out float gLayer;\n"
 		"layout(location = 1) out vec3 gNormal;\n"
 		"layout(location = 2) out vec3 gAlbedo;\n"
 		"\n"
@@ -129,7 +127,7 @@ void UberShader::Initialize()
 		"		float alpha = texture(ColorTex, TexCoord).a;\n"
 		"		if(alpha < alphaThreshold) discard;\n"
 		"   }\n"
-		"   gPosition = vec3(FragPos,1-depth);\n"
+		"   gLayer = depthInt / 255.f;\n"
 		"   gAlbedo = texture(ColorTex, TexCoord).rgb;\n"
 		"   if(useNormalTex)\n"
 		"   {\n"
@@ -168,6 +166,7 @@ void UberShader::DrawElements(const UberData& settings, const unsigned int& VAO,
 	uber->setFloat("cosR", glm::cos(settings.rotation));
 	float depth = 1 - ((settings.layer * 0.9f / std::numeric_limits<uint8_t>::max()) + 0.05f);
 	uber->setFloat("depth", depth);
+	uber->setInt("depthInt", 255-settings.layer);
 
 	uber->setBool("useAlpha", settings.useAlpha && colorTex->hasAlpha());
 	uber->setFloat("alphaThreshold", settings.alphaThreshold);

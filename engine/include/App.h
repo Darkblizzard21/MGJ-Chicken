@@ -44,7 +44,7 @@ private:
 	void CleanBuffers();
 
 	unsigned int gBuffer = -1;
-	unsigned int gPosition = -1; 
+	unsigned int gLayer = -1; 
 	unsigned int gNormal = -1; 
 	unsigned int gAlbedo = -1;
 	unsigned int rboDepth = -1;

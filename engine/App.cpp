@@ -168,7 +168,7 @@ void App::run()
 		// 2. lighting pass
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		compositPass_.Execute(gAlbedo, gNormal, gPosition);
+		compositPass_.Execute(gAlbedo, gNormal, gLayer);
 
 		// finish
 		Timer renderTS("Loop::Render::glfwSwapBuffers");
@@ -234,12 +234,12 @@ void App::ResizeBuffers(const int& width, const int& height)
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 
 	// - position color buffer
-	glGenTextures(1, &gPosition);
-	glBindTexture(GL_TEXTURE_2D, gPosition);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+	glGenTextures(1, &gLayer);
+	glBindTexture(GL_TEXTURE_2D, gLayer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gPosition, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gLayer, 0);
 
 	// - normal color buffer
 	glGenTextures(1, &gNormal);
@@ -279,9 +279,9 @@ void App::CleanBuffers()
 		rboDepth = -1;
 	}
 
-	if (gPosition != -1) {
-		glDeleteTextures(1, &gPosition);
-		gPosition = -1;
+	if (gLayer != -1) {
+		glDeleteTextures(1, &gLayer);
+		gLayer = -1;
 	}
 	if (gNormal != -1) {
 		glDeleteTextures(1, &gNormal);

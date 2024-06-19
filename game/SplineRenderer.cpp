@@ -9,7 +9,7 @@ SplineRenderer::SplineRenderer(std::shared_ptr<Spline> spline, SplineMode mode) 
 {
 	SetSpline(spline);
 	if (mode == SplineMode::Line) {
-		layer== 0;
+		layer += 10;
 	}
 }
 
