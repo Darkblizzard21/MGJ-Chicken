@@ -54,7 +54,16 @@ void ChickenWings::Update()
 		splineSegmentCounter++;
 	}
 
-	xPos += deltaTime();
+	timeUntilNextObstacle -= deltaTime();
+	if (timeUntilNextObstacle <= 0) {
+		timeUntilNextObstacle = 5;
+		obstacles.push(std::make_unique<Obstacle>(UberShader::cameraPosition.x + 10));
+
+		if (obstacles.size() > 4) {
+			obstacles.pop();
+		}
+	}
+
 	//quad->position = glm::vec2(xPos, spline->sampleHight(xPos));
 	
 }

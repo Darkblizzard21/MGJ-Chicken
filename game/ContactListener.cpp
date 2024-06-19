@@ -1,5 +1,4 @@
 #include "ContactListener.h"
-#include <iostream>
 
 ContactListener::ContactListener(Minecart& minecart) : minecart(minecart) {
 }

@@ -5,6 +5,8 @@
 #include "Spline.h"
 #include "SplineRenderer.h"
 #include "ContactListener.h"
+#include "Obstacle.h"
+#include <queue>
 
 class ChickenWings : public App {
 public:
@@ -15,9 +17,13 @@ public:
 	virtual void Update() override;
 	virtual void RenderObjects() override;
 
+	std::shared_ptr<Spline> spline;
+	
 private:
 	std::unique_ptr<Minecart> minecart;
-	std::shared_ptr<Spline> spline;
+	std::queue<std::unique_ptr<Obstacle>> obstacles;
+	float timeUntilNextObstacle = 5;
+
 	std::unique_ptr<SplineRenderer> splineRendererB;
 	std::unique_ptr<SplineRenderer> splineRendererL;
 

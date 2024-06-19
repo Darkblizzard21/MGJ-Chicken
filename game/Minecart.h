@@ -19,7 +19,7 @@ private:
 	b2Body* body = nullptr;
 
 	float baseVelocity = 5;
-	float baseAccelerationWhenSlow = 300;
+	float baseAccelerationWhenSlow = 200;
 	float jumpForce = 8;
 	float rotationalAcceleration = 1;
 };
