@@ -68,7 +68,7 @@ void DeferredCompositPass::Initalize()
 		"   }\n"
 		"}\n"
 		"\n"
-		"FragColor = vec4(texture(ColorTex, TexCoord).rgb * color + 0.5f * color * color,1);\n";
+		"FragColor = vec4(texture(ColorTex, TexCoord).rgb * color + 0.5f * color * color,1);\n"
 		"FragColor = vec4(color,1);\n";
 
 	const std::string fragmentShaderSource = fragmentUniforms +
