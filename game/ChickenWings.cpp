@@ -10,12 +10,15 @@ ChickenWings::ChickenWings(std::string name)
 }
 
 void ChickenWings::StartUp() {
-
 	minecart = std::make_unique<Minecart>();
+	
+	contactListener = std::make_unique<ContactListener>(*minecart);
+	world.SetContactListener(contactListener.get());
+
 	spline = std::make_shared<Spline>();
-	for (int32_t i = -44; i < 23; i++)
+	for (int32_t i = -44; i < 43; i++)
 	{
-		spline->addNextPoint({ i*2,  3  * (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))});
+		spline->addNextPoint({ i*6,  2  * (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))});
 	}
 	splineRendererB = std::make_unique<SplineRenderer>(spline);
 	splineRendererB->ybaseLine = -0.8f;

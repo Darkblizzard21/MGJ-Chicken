@@ -8,19 +8,19 @@ Minecart::Minecart() {
 
 	b2BodyDef bodyDef;
 	bodyDef.type = b2_dynamicBody;
-	bodyDef.position.Set(0.0f, 7.0f);
+	bodyDef.position.Set(0.0f, 5.0f);
 	body = ChickenWings::game.world.CreateBody(&bodyDef);
-
-	float density = 1.0f;
-	float friction = 0.3f;
 
 	b2PolygonShape dynamicBox;
 	dynamicBox.SetAsBox(0.4f, 0.3f);
 	b2FixtureDef boxFixture;
 	boxFixture.shape = &dynamicBox;
-	boxFixture.density = density;
+	boxFixture.density = 1.0f;
 	boxFixture.friction = 2.5f;
 
+
+	float density = 3.0f;
+	float friction = 0.1f;
 
 	b2CircleShape circleShape1;
 	circleShape1.m_radius = 0.15f;
@@ -44,27 +44,42 @@ Minecart::Minecart() {
 	body->CreateFixture(&boxFixture);
 	body->CreateFixture(&wheelFixture1);
 	body->CreateFixture(&wheelFixture2);
+
+	body->SetAngularDamping(3.0f);
 }
 
 void Minecart::update()
 {
+	// sync
 	b2Vec2 phyisicsPos = body->GetPosition();
 	quad->position = glm::vec2(phyisicsPos.x, phyisicsPos.y);
 	quad->rotation = body->GetAngle();
 	
-	// std::cout << quad->position.x << " | " << quad->position.y << std::endl;
-
-	if (!wasSpacePressed && glfwGetKey(ChickenWings::game.window, GLFW_KEY_SPACE)) {
+	// jumping
+	if (!wasSpacePressed && !isAirborn && glfwGetKey(ChickenWings::game.window, GLFW_KEY_SPACE)) {
 		wasSpacePressed = true;
 
 		// up vector
-		b2Vec2 forceVector(-glm::sin(quad->rotation), glm::cos(quad->rotation));
-		forceVector *= 300;
+		//b2Vec2 forceVector(-glm::sin(quad->rotation), glm::cos(quad->rotation));
+		b2Vec2 forceVector = b2Vec2(0, jumpForce);
 
-		body->ApplyForceToCenter(forceVector, true);
+		body->ApplyLinearImpulseToCenter(forceVector, true);
 		//body->ApplyAngularImpulse(0.2f, true);
+
+		isAirborn = true;
 	}
-	
 	if (!glfwGetKey(ChickenWings::game.window, GLFW_KEY_SPACE))
 		wasSpacePressed = false;
+
+	// apply 30 force to right when slower then 2 and grounded
+	if (!isAirborn && body->GetLinearVelocity().Length() < baseVelocity) {
+		body->ApplyForceToCenter(b2Vec2(baseAccelerationWhenSlow * ChickenWings::game.deltaTime(), 0), true);
+	}
+
+	if (glfwGetKey(ChickenWings::game.window, GLFW_KEY_A)) {
+		body->ApplyTorque(rotationalAcceleration, true);
+	}
+	if (glfwGetKey(ChickenWings::game.window, GLFW_KEY_D)) {
+		body->ApplyTorque(-rotationalAcceleration, true);
+	}
 }

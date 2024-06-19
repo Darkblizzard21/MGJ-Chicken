@@ -4,6 +4,7 @@
 #include <memory>
 #include "Spline.h"
 #include "SplineRenderer.h"
+#include "ContactListener.h"
 
 class ChickenWings : public App {
 public:
@@ -24,4 +25,6 @@ private:
 	float xPos = -8;
 
 	float timeToNextExpansion = 0;
+	
+	std::unique_ptr<ContactListener> contactListener;
 };
