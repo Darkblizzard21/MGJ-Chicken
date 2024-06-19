@@ -3,7 +3,7 @@
 #include "ChickenWings.h"
 
 Minecart::Minecart() {
-	quad = ChickenWings::game.quadManager.CreateQuad(std::make_shared<Texture>("Minecart.png"));
+	quad = ChickenWings::game.quadManager.CreateQuad(std::make_shared<Texture>("Minecart.png"), std::make_shared<Texture>("MinecartN.png"));
 
 	b2BodyDef bodyDef;
 	bodyDef.type = b2_dynamicBody;
@@ -67,6 +67,7 @@ void Minecart::update()
 
 		isAirborn = true;
 	}
+	
 	if (!glfwGetKey(ChickenWings::game.window, GLFW_KEY_SPACE))
 		wasSpacePressed = false;
 
