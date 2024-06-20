@@ -112,7 +112,8 @@ App::App(std::string title, int width, int height) : title_(title), width_(width
 	deltaTime_ = 1 / targetFrameRate;
 
 	soloud.init();
-	testSample.load(resolvePath("test.wav").c_str());
+	testSample.load(resolvePath("chicken_run_in_mine.wav").c_str());
+	testSample.setLooping(true);
 	soloud.play(testSample);
 
 	quadManager.Initialize();
@@ -207,6 +208,7 @@ void App::run()
 			glScissor(hP, vP, w, h);
 			glViewport(hP, vP, w, h);
 		}
+
 		glEnable(GL_BLEND);
 		const auto cameraPos = UberShader::cameraPosition;
 		UberShader::cameraPosition = glm::vec2(0, 0);
