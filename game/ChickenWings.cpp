@@ -61,11 +61,13 @@ void ChickenWings::StartUp() {
 		lanterns[i].quad->position.x = lanternStep * -1.5f + lanternStep * i;
 		lanterns[i].quad->position.y = spline->sampleHight(lanterns[i].quad->position.x) + 1.2f;
 		lanterns[i].quad->scale = glm::vec2(0.5f);
+		lanterns[i].quad->layer = 105;
 
 
 		lanterns[i].light = compositPass_.CreatePointLight();
 		lanterns[i].light->lightPos = lanterns[i].quad->position;
-		lanterns[i].light->lightColor = colors[i];
+		lanterns[i].color = colors[i];
+		lanterns[i].light->lightColor =  lanternStartColor * 0.8f;
 		lanterns[i].light->lightRadius = 3;
 	}
 
@@ -123,11 +125,17 @@ void ChickenWings::Update()
 	xPos += deltaTime();
 	//quad->position = glm::vec2(xPos, spline->sampleHight(xPos));
 
-	while (lanterns[lastLantern].quad->position.x - UberShader::cameraPosition.x < -12)
+	while (lanterns[lastLantern].quad->position.x - UberShader::cameraPosition.x < -14)
 	{
+		if (lanterns[lastLantern].l < 1)
+			lanterns[lastLantern].l += 0.03f;
+		else
+			lanterns[lastLantern].l = 1;
+
 		lanterns[lastLantern].quad->position.x = lanterns[(lastLantern + 7) % 8].quad->position.x + lanternStep;
 		lanterns[lastLantern].quad->position.y = spline->sampleHight(lanterns[lastLantern].quad->position.x) + 0.7f;
 		lanterns[lastLantern].light->lightPos = lanterns[lastLantern].quad->position;
+		lanterns[lastLantern].light->lightColor = glm::mix(lanternStartColor, lanterns[lastLantern].color, lanterns[lastLantern].l) * 0.8f;
 		lastLantern = (lastLantern + 1) % 8;
 	}
 

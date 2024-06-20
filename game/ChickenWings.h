@@ -37,9 +37,11 @@ private:
 
 	std::shared_ptr<Number> testNum;
 
+	glm::vec3 lanternStartColor = glm::vec3(1, 1, 0.8f);
 	struct Lantern
 	{
-
+		glm::vec3 color;
+		float l = 0;
 		std::shared_ptr<Quad> quad;
 		std::shared_ptr<PointLight> light;
 	};

@@ -4,7 +4,7 @@
 Chicken::Chicken(b2Body* cartBody, float xOffset, float yOffset) {
 	quad = ChickenWings::game.quadManager.CreateQuad(std::make_shared<Texture>("ChickenWhite_closed.png"));
 	quad->scale = glm::vec2(0.5f, 0.5f);
-	quad->layer = 100;
+	quad->layer = 110;
 
 	b2BodyDef bodyDef;
 	bodyDef.position = cartBody->GetPosition() + b2Vec2(xOffset, 0.35f + yOffset);
