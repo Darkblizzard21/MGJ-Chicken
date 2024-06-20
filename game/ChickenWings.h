@@ -23,6 +23,10 @@ public:
 
 	
 private:
+	glm::vec2 cameraOffset = { 0, 0 };
+	float maxOffset = 6;
+	float maxOffestVelo = 10.f;
+
 	std::unique_ptr<Minecart> minecart;
 	std::vector<std::unique_ptr<Obstacle>> obstacles;
 	float timeUntilNextObstacle = 5;
@@ -30,13 +34,14 @@ private:
 	std::unique_ptr<SplineRenderer> splineRendererB;
 	std::unique_ptr<SplineRenderer> splineRendererL;
 
+	std::shared_ptr<Number> testNum;
 
 	struct Lantern
 	{
 
 		std::shared_ptr<Quad> quad;
 		std::shared_ptr<PointLight> light;
-	}; 
+	};
 	Lantern lanterns[8];
 	int lastLantern = 0;
 	float lanternStep = 5.f;
@@ -51,7 +56,7 @@ private:
 	float slopehightIncrement = 1;
 
 	float SplineXStep = 6;
-	
+
 	float splineLeanth = 6;
 
 	float splineHightVariance = 2;

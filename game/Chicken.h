@@ -5,7 +5,7 @@
 
 class Chicken {
 public:
-	Chicken(b2Body* cartBody);
+	Chicken(b2Body* cartBody, float xOffset, float yOffset);
 	~Chicken();
 	void update();
 

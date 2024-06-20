@@ -116,19 +116,33 @@ void UberShader::Initialize()
 		"uniform float cosR; \n"
 		"uniform int depthInt;\n"
 		"\n"
-		"layout(location = 0) out float gLayer;\n"
+		"uniform vec3  tin; \n"
+		"uniform float tinfluence;\n"
+		"\n"
+		"layout(location = 0) out vec3 gAlbedo;\n"
 		"layout(location = 1) out vec3 gNormal;\n"
-		"layout(location = 2) out vec3 gAlbedo;\n"
+		"layout(location = 2) out float gLayer;\n"
 		"\n"
 		"void main()\n"
 		"{\n"
+		// alpha clipping
 		"   if(useAlpha)\n"
 		"   {\n"
 		"		float alpha = texture(ColorTex, TexCoord).a;\n"
 		"		if(alpha < alphaThreshold) discard;\n"
 		"   }\n"
+		// layer buffer
 		"   gLayer = depthInt / 255.f;\n"
-		"   gAlbedo = texture(ColorTex, TexCoord).rgb;\n"
+		// albedo
+		"   if(tinfluence <= 0.f)\n"
+		"   {\n"
+		"		gAlbedo = texture(ColorTex, TexCoord).rgb;\n"
+		"   } else if(tinfluence >= 1.f) {\n"
+		"		gAlbedo = tin;\n"
+		"	} else {\n"
+		"		gAlbedo = mix(texture(ColorTex, TexCoord).rgb, tin, tinfluence);\n"
+		"   } \n"
+		// normal
 		"   if(useNormalTex)\n"
 		"   {\n"
 		"		vec3  normal = (texture(NormalTex, TexCoord).rgb - 0.5f) * 2;\n"
@@ -170,6 +184,10 @@ void UberShader::DrawElements(const UberData& settings, const unsigned int& VAO,
 
 	uber->setBool("useAlpha", settings.useAlpha && colorTex->hasAlpha());
 	uber->setFloat("alphaThreshold", settings.alphaThreshold);
+
+
+	uber->setVec3("tin", settings.tin);
+	uber->setFloat("tinfluence", settings.tinfluence);
 
 	uber->setVec2("uvOffset", settings.uvOffset);
 	uber->setVec2("uvScale", settings.uvScale);
