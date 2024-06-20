@@ -4,9 +4,9 @@
 Obstacle::Obstacle(float xPos) {
 	float yPos = ChickenWings::game.spline->sampleHight(xPos);
 
-	quad = ChickenWings::game.quadManager.CreateQuad();
-	quad->position = glm::vec2(xPos, yPos + 0.5f);
-	quad->layer = 200;
+	quad = ChickenWings::game.quadManager.CreateQuad(std::make_shared<Texture>("Shroom.png"), std::make_shared<Texture>("ShroomN.png"));
+	quad->position = glm::vec2(xPos, yPos + 0.42f);
+	quad->layer = 50;
 
 	b2BodyDef bodyDef;
 	bodyDef.position.Set(xPos, yPos + 0.5f);
@@ -22,6 +22,10 @@ Obstacle::Obstacle(float xPos) {
 	body = ChickenWings::game.world.CreateBody(&bodyDef);
 	body->CreateFixture(&fixtureDef);
 
+	light = ChickenWings::game.compositPass_.CreatePointLight();
+	light->lightPos = quad->position;
+	light->lightRadius = 1.5f;
+	light->lightColor = glm::vec3(0.5f, 0.5f, 0.5f);
 }
 
 void Obstacle::Update()

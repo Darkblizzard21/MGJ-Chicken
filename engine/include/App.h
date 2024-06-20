@@ -39,8 +39,8 @@ public:
 	QuadManager quadManager;
 	QuadManager uiManager;
 	NumberManager numberManager;
-protected:
 	DeferredCompositPass compositPass_;
+protected:
 private:
 	void ResizeBuffers(const int& width, const int& height);
 	void CleanBuffers();
