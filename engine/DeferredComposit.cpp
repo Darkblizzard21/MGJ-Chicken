@@ -68,7 +68,7 @@ void DeferredCompositPass::Initalize()
 		"   }\n"
 		"}\n"
 		"\n"
-		"FragColor = vec4(texture(ColorTex, TexCoord).rgb * color + 0.5f * color * color,1);\n"
+		"FragColor = vec4(texture(ColorTex, TexCoord).rgb * color + 0.5f * color * color,1);\n";
 		"FragColor = vec4(color,1);\n";
 
 	const std::string fragmentShaderSource = fragmentUniforms +
@@ -163,10 +163,12 @@ void DeferredCompositPass::Execute(const int& colorTex, const int& normalTex, co
 	glBindTexture(GL_TEXTURE_2D, normalTex);
 	ptr->setInt("NormalTex", 1);
 
-	glActiveTexture(GL_TEXTURE2);
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, posTex);
-	ptr->setInt("LayerTex", 2);
+	if (debug) {
+		glActiveTexture(GL_TEXTURE2);
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, posTex);
+		ptr->setInt("LayerTex", 2);
+	}
 
 
 	UpdateWorkingVars();
