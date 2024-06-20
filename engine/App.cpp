@@ -185,7 +185,7 @@ void App::run()
 			deltaTime_ = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastFrame_).count() * 0.001f;
 
 		} while (deltaTime_ < deltaTarget);
-		if (waitCount == 1) {
+		if (waitCount == 1 && false) {
 			std::cout << "\033[33m" << "Error: FrameRate Dipped below 60!" << "\033[0m" << " Currrent Frame rate: " << std::to_string(1.f / deltaTime_) << std::endl;
 		}
 		else {

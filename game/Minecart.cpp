@@ -90,16 +90,30 @@ void Minecart::update()
 	collisionExecutedThisFrame = false;
 }
 
-void Minecart::onCollision() {
+void Minecart::onCollision(b2Contact* contact) {
+	uintptr_t ptrA = contact->GetFixtureA()->GetUserData().pointer;
+	if (ptrA != 0) {
+		std::string tag = *reinterpret_cast<std::string*>(ptrA);
+		if (tag == "Chicken")
+			ChickenWings::game.StopGame();
+	}
+	
+	uintptr_t ptrB = contact->GetFixtureB()->GetUserData().pointer;
+	if (ptrB != 0) {
+		std::string tag = *reinterpret_cast<std::string*>(ptrB);
+		if (tag == "Chicken")
+			ChickenWings::game.StopGame();
+	}
+	
 	if (collisionExecutedThisFrame)
 		return;
 	collisionExecutedThisFrame = true;
 
 	if (isAirborn) {
-		float downForce = 1.5f;
+		float downForce = 1.0f;
 		for (size_t i = 0; i < chickens.size(); i++)
 		{
-			//chickens[i]->body->ApplyLinearImpulseToCenter(b2Vec2(0, -downForce), true);
+			chickens[i]->body->ApplyLinearImpulseToCenter(b2Vec2(0, -downForce), true);
 		}
 	}
 

@@ -16,6 +16,7 @@ public:
 	virtual void StartUp() override;
 	virtual void Update() override;
 	virtual void RenderObjects() override;
+	void StopGame();
 
 	std::shared_ptr<Spline> spline;
 	

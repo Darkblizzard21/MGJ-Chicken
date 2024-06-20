@@ -6,11 +6,14 @@
 class Chicken {
 public:
 	Chicken(b2Body* cartBody);
+	~Chicken();
 	void update();
 
 	b2Body* body;
 private:
 	std::shared_ptr<Quad> quad;
+
+	std::string* tag;
 	
 	b2WeldJoint* weldJoint;
 };

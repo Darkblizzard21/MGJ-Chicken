@@ -136,3 +136,7 @@ void ChickenWings::GenerateNextPointOnSpline()
 
 	}
 }
+
+void ChickenWings::StopGame() {
+	std::cout << "Game Over!" << std::endl;
+}

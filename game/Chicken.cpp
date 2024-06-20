@@ -12,18 +12,33 @@ Chicken::Chicken(b2Body* cartBody) {
 
 	body = ChickenWings::game.world.CreateBody(&bodyDef);
 
+	b2FixtureDef fixtureDef;
 	b2PolygonShape collider;
 	collider.SetAsBox(0.2f, 0.2f);
-	body->CreateFixture(&collider, 0.05f);
+	
+	fixtureDef.shape = &collider;
+	fixtureDef.density = 0.05f;
+
+	tag = new std::string("Chicken");
+	fixtureDef.userData.pointer = reinterpret_cast<uintptr_t>(tag);
+
+	body->CreateFixture(&fixtureDef);
 
 	b2WeldJointDef jointDef;
 	jointDef.Initialize(cartBody, body, cartBody->GetPosition());
+	jointDef.collideConnected = false;
 	
 	float frequencyHz = 2.0f;
 	float dampingRatio = 0.3f;
 	b2LinearStiffness(jointDef.stiffness, jointDef.damping, frequencyHz, dampingRatio, jointDef.bodyA, jointDef.bodyB);
 
 	weldJoint = (b2WeldJoint*)ChickenWings::game.world.CreateJoint(&jointDef);
+}
+
+Chicken::~Chicken()
+{
+	delete tag;
+	ChickenWings::game.world.DestroyJoint(weldJoint);
 }
 
 void Chicken::update() {
