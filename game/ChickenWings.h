@@ -21,6 +21,10 @@ public:
 	std::shared_ptr<Spline> spline;
 	
 private:
+	float cameraOffset = 0;
+	float maxOffset = 6;
+	float maxOffestVelo = 10.f;
+
 	std::unique_ptr<Minecart> minecart;
 	std::queue<std::unique_ptr<Obstacle>> obstacles;
 	float timeUntilNextObstacle = 5;

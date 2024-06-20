@@ -70,7 +70,10 @@ void ChickenWings::Update()
 {
 	minecart->update();
 	//UberShader::cameraPosition.x += deltaTime();
-	UberShader::cameraPosition.x = minecart->quad->position.x;
+	float lerp = glm::min(1.f, minecart->GetVelocityX() / maxOffestVelo);
+	float targetOffset = maxOffset * lerp * lerp;
+	cameraOffset = glm::mix(cameraOffset, targetOffset, std::min(deltaTime(),1.f));
+	UberShader::cameraPosition.x = minecart->quad->position.x + cameraOffset;
 	UberShader::cameraPosition.y = minecart->quad->position.y;
 
 	glm::vec2 v = spline->splinePoints[spline->splinePoints.size() - 1];
