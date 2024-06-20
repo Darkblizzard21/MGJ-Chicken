@@ -32,10 +32,7 @@ void Number::SetPadding(const float& padding) {
 void NumberManager::Initialize(QuadManager* uiQuadManager)
 {
 	quadManager = uiQuadManager;
-	for (size_t i = 0; i < 10; i++)
-	{
-		digitTextures_[i] = std::make_shared<Texture>(std::to_string(i) + ".png");
-	}
+	numberTextureSheet = std::make_shared<Texture>("numbers.png");
 }
 
 std::shared_ptr<Number> NumberManager::CreateNumber()
@@ -75,7 +72,10 @@ void NumberManager::Update()
 		// resize quads to digits
 		while (number->quads_.size() < digits.size())
 		{
-			number->quads_.push_back(quadManager->CreateQuad());
+			auto quad = quadManager->CreateQuad();
+			quad->uvGridSize = 4;
+			quad->colorTexture = numberTextureSheet;
+			number->quads_.push_back(quad);
 		}
 		while (number->quads_.size() > digits.size())
 		{
@@ -88,7 +88,7 @@ void NumberManager::Update()
 			const float xOffset = number->padding_ * number->scale_.x * d;
 			number->quads_[d]->position = number->pos_ - glm::vec2(xOffset, 0);
 			number->quads_[d]->scale = number->scale_;
-			number->quads_[d]->colorTexture = digitTextures_[digits[d]];
+			number->quads_[d]->uvTile = digits[d];
 
 		}
 

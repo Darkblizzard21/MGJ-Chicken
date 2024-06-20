@@ -16,8 +16,8 @@ void ChickenWings::StartUp() {
 	contactListener = std::make_unique<ContactListener>(*minecart,obstacles);
 	world.SetContactListener(contactListener.get());
 
-	gameOverQuad = quadManager.CreateQuad(std::make_shared < Texture>("GameOver.png"));
-	gameOverQuad->position = glm::vec2(-500, 0);
+	gameOverQuad = uiManager.CreateQuad(std::make_shared < Texture>("GameOver.png"));
+	gameOverQuad->draw = false;
 	gameOverQuad->scale = glm::vec2(10, 3);
 	gameOverQuad->layer = 200;
 
@@ -71,13 +71,27 @@ void ChickenWings::StartUp() {
 		lanterns[i].light->lightRadius = 3;
 	}
 
-	testNum = numberManager.CreateNumber();
-	testNum->SetPos({ -5,4 });
+	coinIcon = uiManager.CreateQuad(std::make_shared<Texture>("chickencoin.png"));
+	coinIcon->scale = { 0.66f, 0.66f };
+	coinIcon->position = { 7.5,4 };
+	scoreNumberR = numberManager.CreateNumber();
+	scoreNumberR->SetPos(coinIcon->position - glm::vec2(0.74,0));
+	scoreNumberR->SetScale(coinIcon->scale);
+	scoreNumberR->SetPadding(0.8f);
 }
 
 void ChickenWings::ResetGame() {
-	gameOverQuad->position = glm::vec2(-500, 0);
+	gameOverQuad->draw = false;
 	isGameOver = false;
+	meterScore = 0;
+	bounsScore = 0;
+
+	for (size_t i = 0; i < 8; i++)
+	{
+		lanterns[i].quad->position.x = lanternStep * -1.5f + lanternStep * i;
+		lanterns[i].quad->position.y = spline->sampleHight(lanterns[i].quad->position.x) + 1.2f;
+		lanterns[i].light->lightPos = lanterns[i].quad->position;
+	}
 
 	minecart->reset();
 }
@@ -139,13 +153,17 @@ void ChickenWings::Update()
 		lastLantern = (lastLantern + 1) % 8;
 	}
 
-	testNum->SetNumber((uint32_t)gameTime());
+
 
 	if (isGameOver) {
-		gameOverQuad->position = UberShader::cameraPosition;
+		gameOverQuad->draw = true;
 		if (glfwGetKey(ChickenWings::game.window, GLFW_KEY_SPACE)) {
 			ResetGame();
 		}
+	}
+	else {
+		meterScore = glm::max(meterScore, (uint32_t)(minecart->quad->position.x * 4.f));
+		scoreNumberR->SetNumber(Score());
 	}
 }
 
@@ -190,4 +208,9 @@ void ChickenWings::GenerateNextPointOnSpline()
 
 void ChickenWings::StopGame() {
 	isGameOver = true;
+}
+
+uint32_t ChickenWings::Score()
+{
+	return meterScore + bounsScore;
 }

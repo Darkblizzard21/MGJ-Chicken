@@ -24,6 +24,10 @@ public:
 
 	
 private:
+	uint32_t Score();
+	uint32_t bounsScore = 0;
+	uint32_t meterScore = 0;
+
 	glm::vec2 cameraOffset = { 0, 0 };
 	float maxOffset = 6;
 	float maxOffestVelo = 10.f;
@@ -35,7 +39,8 @@ private:
 	std::unique_ptr<SplineRenderer> splineRendererB;
 	std::unique_ptr<SplineRenderer> splineRendererL;
 
-	std::shared_ptr<Number> testNum;
+	std::shared_ptr<Quad>   coinIcon;
+	std::shared_ptr<Number> scoreNumberR;
 
 	glm::vec3 lanternStartColor = glm::vec3(1, 1, 0.8f);
 	struct Lantern

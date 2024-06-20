@@ -69,6 +69,9 @@ void UberShader::Initialize()
 		"uniform vec2  scale; \n"
 		"uniform vec2  uvOffset;\n"
 		"uniform vec2  uvScale;\n"
+		"uniform int   uvGridSize;\n"
+		"uniform int   uvTile;\n"
+		"\n"
 		"uniform float sinR; \n"
 		"uniform float cosR; \n"
 		"uniform float depth;\n"
@@ -88,7 +91,16 @@ void UberShader::Initialize()
 		"   vec2 sPos =  (wPos + cameraOffset) * vec2(1.0/8.0, 1.0/4.5);\n"
 		"   gl_Position = vec4(sPos.x, sPos.y, depth, 1.0);\n"
 		// texture coords
-		"   TexCoord = (aTex + uvOffset) * uvScale;\n"
+		"   if(uvGridSize == 1)\n"
+		"	{\n"
+		"		TexCoord = (aTex + uvOffset) * uvScale;\n"
+		"	} else {\n"
+		"		vec2 uv = (aTex + uvOffset) * uvScale;\n"
+		"		float tileSize = 1.f / uvGridSize;\n"
+		"		int tileX = uvTile % uvGridSize;\n"
+		"		int tileY = uvTile / uvGridSize;\n"
+		"		TexCoord = vec2(tileX * tileSize + uv.x / uvGridSize, tileY * tileSize + uv.y / uvGridSize);\n"
+		"	}\n"
 	    // Normals
 		"   if(!useNormalTex)\n"
 		"	{\n"
@@ -119,16 +131,17 @@ void UberShader::Initialize()
 		"uniform vec3  tin; \n"
 		"uniform float tinfluence;\n"
 		"\n"
-		"layout(location = 0) out vec3 gAlbedo;\n"
+		"layout(location = 0) out vec4 gAlbedo;\n"
 		"layout(location = 1) out vec3 gNormal;\n"
 		"layout(location = 2) out float gLayer;\n"
 		"\n"
 		"void main()\n"
 		"{\n"
 		// alpha clipping
+		"   float alpha = 1.f;"
 		"   if(useAlpha)\n"
 		"   {\n"
-		"		float alpha = texture(ColorTex, TexCoord).a;\n"
+		"		alpha = texture(ColorTex, TexCoord).a;\n"
 		"		if(alpha < alphaThreshold) discard;\n"
 		"   }\n"
 		// layer buffer
@@ -136,11 +149,11 @@ void UberShader::Initialize()
 		// albedo
 		"   if(tinfluence <= 0.f)\n"
 		"   {\n"
-		"		gAlbedo = texture(ColorTex, TexCoord).rgb;\n"
+		"		gAlbedo = vec4(texture(ColorTex, TexCoord).rgb, alpha);\n"
 		"   } else if(tinfluence >= 1.f) {\n"
-		"		gAlbedo = tin;\n"
+		"		gAlbedo =  vec4(tin, alpha);\n"
 		"	} else {\n"
-		"		gAlbedo = mix(texture(ColorTex, TexCoord).rgb, tin, tinfluence);\n"
+		"		gAlbedo = vec4(mix(texture(ColorTex, TexCoord).rgb, tin, tinfluence), alpha);\n"
 		"   } \n"
 		// normal
 		"   if(useNormalTex)\n"
@@ -170,6 +183,8 @@ void UberShader::DrawElements(const UberData& settings, const MeshBuffers& buffe
 void UberShader::DrawElements(const UberData& settings, const unsigned int& VAO, const unsigned int& triangles)
 {
 	assert(uber != nullptr);
+	if (!settings.draw) return;
+
 	Texture* colorTex = settings.colorTexture != nullptr ? settings.colorTexture.get() : fallbackTexture.get();
 	Texture* normalTex = settings.normalTexture != nullptr ? settings.normalTexture.get() : fallbackNormals.get();
 	uber->use();
@@ -191,6 +206,10 @@ void UberShader::DrawElements(const UberData& settings, const unsigned int& VAO,
 
 	uber->setVec2("uvOffset", settings.uvOffset);
 	uber->setVec2("uvScale", settings.uvScale);
+	const auto gSize = glm::max(1, settings.uvGridSize);
+	uber->setInt("uvGridSize", gSize);
+	uber->setInt("uvTile", settings.uvTile % (gSize * gSize));
+
 	uber->setInt("ColorTex", 0);
 	colorTex->Bind(0);
 	uber->setBool("useNormalTex", settings.useNormalTex);

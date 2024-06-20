@@ -19,6 +19,8 @@ struct MeshBuffers
 
 struct UberData
 {
+	bool draw = true;
+
 	glm::vec2 position = { 0, 0 };
 	glm::vec2 scale = { 1,1 };
 	float rotation = 0;
@@ -32,6 +34,8 @@ struct UberData
 
 	glm::vec2 uvOffset = { 0,0 };
 	glm::vec2 uvScale = { 1,1 };
+	int uvGridSize = 1;
+	int uvTile = 0;
 
 	bool useAlpha = true;
 	float alphaThreshold = 0.5f;
