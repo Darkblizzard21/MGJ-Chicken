@@ -32,6 +32,8 @@ struct UberData
 
 	glm::vec2 uvOffset = { 0,0 };
 	glm::vec2 uvScale = { 1,1 };
+	int uvGridSize = 1;
+	int uvTile = 0;
 
 	bool useAlpha = true;
 	float alphaThreshold = 0.5f;

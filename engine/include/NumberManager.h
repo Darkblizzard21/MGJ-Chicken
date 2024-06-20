@@ -37,7 +37,7 @@ public:
 	void Update();
 private:
 	QuadManager* quadManager = nullptr;
-	std::shared_ptr<Texture> digitTextures_[10];
+	std::shared_ptr<Texture> numberTextureSheet;
 
 	std::vector<std::shared_ptr<Number>> numbers_;
 };

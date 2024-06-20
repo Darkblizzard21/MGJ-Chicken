@@ -69,6 +69,9 @@ void UberShader::Initialize()
 		"uniform vec2  scale; \n"
 		"uniform vec2  uvOffset;\n"
 		"uniform vec2  uvScale;\n"
+		"uniform int   uvGridSize;\n"
+		"uniform int   uvTile;\n"
+		"\n"
 		"uniform float sinR; \n"
 		"uniform float cosR; \n"
 		"uniform float depth;\n"
@@ -88,7 +91,11 @@ void UberShader::Initialize()
 		"   vec2 sPos =  (wPos + cameraOffset) * vec2(1.0/8.0, 1.0/4.5);\n"
 		"   gl_Position = vec4(sPos.x, sPos.y, depth, 1.0);\n"
 		// texture coords
-		"   TexCoord = (aTex + uvOffset) * uvScale;\n"
+		"   vec2 uv = (aTex + uvOffset) * uvScale;\n"
+		"   float tileSize = 1.f / uvGridSize;\n"
+		"   int tileX = uvTile % uvGridSize;\n"
+		"   int tileY = uvTile / uvGridSize;\n"
+		"   TexCoord = vec2(tileX * tileSize + uv.x / uvGridSize, tileY * tileSize + uv.y / uvGridSize);\n"
 	    // Normals
 		"   if(!useNormalTex)\n"
 		"	{\n"
@@ -191,6 +198,9 @@ void UberShader::DrawElements(const UberData& settings, const unsigned int& VAO,
 
 	uber->setVec2("uvOffset", settings.uvOffset);
 	uber->setVec2("uvScale", settings.uvScale);
+	uber->setInt("uvGridSize", settings.uvGridSize);
+	uber->setInt("uvGridSize", settings.uvTile % (settings.uvGridSize * settings.uvGridSize));
+
 	uber->setInt("ColorTex", 0);
 	colorTex->Bind(0);
 	uber->setBool("useNormalTex", settings.useNormalTex);

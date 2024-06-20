@@ -103,7 +103,9 @@ void ChickenWings::Update()
 		lastLantern = (lastLantern + 1) % 8;
 	}
 
-	testNum->SetNumber((uint32_t)gameTime());
+
+	meters = glm::max(meters, (uint32_t) minecart->quad->position.x);
+	testNum->SetNumber(Score());
 }
 
 void ChickenWings::RenderObjects()
@@ -147,4 +149,9 @@ void ChickenWings::GenerateNextPointOnSpline()
 
 void ChickenWings::StopGame() {
 	std::cout << "Game Over!" << std::endl;
+}
+
+uint32_t ChickenWings::Score()
+{
+	return meters / 10 + bounsScore;
 }

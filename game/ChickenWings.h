@@ -21,6 +21,10 @@ public:
 	std::shared_ptr<Spline> spline;
 
 private:
+	uint32_t Score();
+	uint32_t bounsScore = 0;
+	uint32_t meters = 0;
+
 	glm::vec2 cameraOffset = { 0, 0 };
 	float maxOffset = 6;
 	float maxOffestVelo = 10.f;
