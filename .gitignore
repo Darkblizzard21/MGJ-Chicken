@@ -5,5 +5,9 @@
 # Visual Studio 
 **/.vs
 
+**/**.png~
 **/**.kra
+**/**.kra~
 **/**.xcf
+**/**.blend
+**/**.blend1

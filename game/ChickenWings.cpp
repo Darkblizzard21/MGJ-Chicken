@@ -175,6 +175,8 @@ void ChickenWings::Update()
 		meterScore = glm::max(meterScore, (uint32_t)(minecart->quad->position.x * 4.f));
 		scoreNumberR->SetNumber(Score());
 	}
+
+	minecart->updateAnimation();
 }
 
 void ChickenWings::RenderObjects()

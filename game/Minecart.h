@@ -9,8 +9,11 @@ public:
 
 	Minecart();
 	void update();
+	void updateAnimation();
 	void onCollision(b2Contact* contact);
 	std::shared_ptr<Quad> quad;
+	std::shared_ptr<Quad> wheelL;
+	std::shared_ptr<Quad> wheelR;
 
 	bool isAirborn = true;
 	b2Body* body = nullptr;
@@ -19,6 +22,8 @@ public:
 	void reset();
 
 private:
+	float lastX = 0;
+	float wheelRotation = 0.f;
 	glm::vec2 velocity;
 	bool wasSpacePressed = false;
 	bool collisionExecutedThisFrame = false;
@@ -31,4 +36,10 @@ private:
 	float rotationalAcceleration = 1;
 
 	std::vector<std::unique_ptr<Chicken>> chickens;
+
+	static std::shared_ptr<Texture> colorTex;
+	static std::shared_ptr<Texture> normalTex;
+
+	static std::shared_ptr<Texture> wheelColorTex;
+	static std::shared_ptr<Texture> wheelNormalTex;
 };

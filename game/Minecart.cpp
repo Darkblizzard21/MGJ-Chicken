@@ -1,9 +1,29 @@
 #include "Minecart.h"
 #include <GLFW/glfw3.h>
 #include "ChickenWings.h"
+#include "MathUtil.h"
+#include <iostream>
+
+std::shared_ptr<Texture> Minecart::colorTex = nullptr;
+std::shared_ptr<Texture> Minecart::normalTex = nullptr;
+std::shared_ptr<Texture> Minecart::wheelColorTex = nullptr;
+std::shared_ptr<Texture> Minecart::wheelNormalTex = nullptr;
 
 Minecart::Minecart() {
-	quad = ChickenWings::game.quadManager.CreateQuad(std::make_shared<Texture>("Minecart.png"), std::make_shared<Texture>("MinecartN.png"));
+	if (colorTex == nullptr) colorTex = std::make_shared<Texture>("Cart.png");
+	if (normalTex == nullptr) normalTex = std::make_shared<Texture>("CartN.png");
+	if (wheelColorTex == nullptr) wheelColorTex = std::make_shared<Texture>("wheel.png");
+	if (wheelNormalTex == nullptr) wheelNormalTex = std::make_shared<Texture>("wheelN.png");
+
+	quad = ChickenWings::game.quadManager.CreateQuad(colorTex, normalTex);
+	quad->layer = 200;
+
+	wheelL = ChickenWings::game.quadManager.CreateQuad(wheelColorTex, wheelNormalTex);
+	wheelL->layer = 205;
+	wheelL->scale = { 0.33f, 0.33f };
+	wheelR = ChickenWings::game.quadManager.CreateQuad(wheelColorTex, wheelNormalTex);
+	wheelR->layer = 205;
+	wheelR->scale = { 0.33f, 0.33f };
 
 	b2BodyDef bodyDef;
 	bodyDef.type = b2_dynamicBody;
@@ -58,7 +78,7 @@ void Minecart::update()
 	quad->position = glm::vec2(phyisicsPos.x, phyisicsPos.y);
 	quad->rotation = body->GetAngle();
 
-	
+
 	for (size_t i = 0; i < chickens.size(); i++)
 	{
 		chickens[i]->update();
@@ -99,6 +119,23 @@ void Minecart::update()
 	}
 }
 
+void Minecart::updateAnimation()
+{
+	// leftWeel
+	wheelL->position = quad->position + rotate(glm::vec2(-0.25, -0.25), quad->rotation);
+	wheelR->position = quad->position + rotate(glm::vec2(0.25, -0.25), quad->rotation);
+
+	const float deltaX = quad->position.x - lastX;
+	lastX = quad->position.x;
+	const float rotThisFrame = deltaX / (wheelL->scale.x * 3.141592);
+	wheelRotation += rotThisFrame;
+	if (wheelRotation > 2 * 3.141592) {
+		wheelRotation -= 2 * 3.141592;
+	}
+	wheelL->rotation = quad->rotation - wheelRotation;
+	wheelR->rotation = quad->rotation - wheelRotation;
+}
+
 void Minecart::onCollision(b2Contact* contact) {
 	int chickenCounter = 0;
 	int obstacleCounter = 0;
@@ -110,7 +147,7 @@ void Minecart::onCollision(b2Contact* contact) {
 		else if (tag == "Obstacle")
 			obstacleCounter++;
 	}
-	
+
 	uintptr_t ptrB = contact->GetFixtureB()->GetUserData().pointer;
 	if (ptrB != 0) {
 		std::string tag = *reinterpret_cast<std::string*>(ptrB);
@@ -122,7 +159,7 @@ void Minecart::onCollision(b2Contact* contact) {
 
 	if (chickenCounter == 1 && obstacleCounter == 0)
 		ChickenWings::game.StopGame();
-	
+
 	if (collisionExecutedThisFrame)
 		return;
 	collisionExecutedThisFrame = true;
