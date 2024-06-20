@@ -144,7 +144,10 @@ void Minecart::updateAnimation()
 
 	const float deltaX = quad->position.x - lastX;
 	lastX = quad->position.x;
-	const float rotThisFrame = deltaX / (wheelL->scale.x * 3.141592);
+	float rotThisFrame = deltaX / (wheelL->scale.x * 3.141592);
+	if (isAirborn) {
+		rotThisFrame /= 2;
+	}
 	wheelRotation += rotThisFrame;
 	if (wheelRotation > 2 * 3.141592) {
 		wheelRotation -= 2 * 3.141592;
