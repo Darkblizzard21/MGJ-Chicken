@@ -1,6 +1,11 @@
 #include "NumberManager.h"
 
 
+float Number::GetWidth() const
+{
+	return width_;
+}
+
 uint32_t Number::GetNumber() const
 {
 	return num_;
@@ -15,18 +20,32 @@ void Number::SetNumber(const uint32_t& num)
 }
 
 void Number::SetPos(const glm::vec2& pos) {
+	if (pos_ != pos) {
+		dirty_ = true;
+	}
 	pos_ = pos;
-	dirty_ = true;
 }
 
 void Number::SetScale(const glm::vec2& scale) {
+	if (scale_ != scale) {
+		dirty_ = true;
+	}
 	scale_ = scale;
-	dirty_ = true;
 }
 
 void Number::SetPadding(const float& padding) {
+	if (padding_ != padding) {
+		dirty_ = true;
+	}
 	padding_ = padding;
-	dirty_ = true;
+}
+
+void Number::SetCentered(const bool centered)
+{
+	if (centered_ != centered) {
+		dirty_ = true;
+	}
+	centered_ = centered;
 }
 
 void NumberManager::Initialize(QuadManager* uiQuadManager)
@@ -83,10 +102,15 @@ void NumberManager::Update()
 		}
 
 		// set digit textures and pos and co
+		float constantOffsetX = 0.f;
+		number->width_ = number->padding_* number->scale_.x* (digits.size() - 1);
+		if (number->centered_) {
+			constantOffsetX = number->width_ * 0.5f;
+		}
 		for (size_t d = 0; d < digits.size(); d++)
 		{
 			const float xOffset = number->padding_ * number->scale_.x * d;
-			number->quads_[d]->position = number->pos_ - glm::vec2(xOffset, 0);
+			number->quads_[d]->position = number->pos_ + glm::vec2(constantOffsetX - xOffset, 0);
 			number->quads_[d]->scale = number->scale_;
 			number->quads_[d]->uvTile = digits[d];
 

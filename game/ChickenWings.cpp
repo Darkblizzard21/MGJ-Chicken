@@ -13,7 +13,7 @@ ChickenWings::ChickenWings(std::string name)
 void ChickenWings::StartUp() {
 	minecart = std::make_unique<Minecart>();
 
-	contactListener = std::make_unique<ContactListener>(*minecart,obstacles);
+	contactListener = std::make_unique<ContactListener>(*minecart, obstacles);
 	world.SetContactListener(contactListener.get());
 
 	gameOverQuad = uiManager.CreateQuad(std::make_shared < Texture>("GameOver.png"));
@@ -70,12 +70,16 @@ void ChickenWings::StartUp() {
 	}
 
 	coinIcon = uiManager.CreateQuad(std::make_shared<Texture>("chickencoin.png"));
-	coinIcon->scale = { 0.66f, 0.66f };
-	coinIcon->position = { 7.5,4 };
 	scoreNumberR = numberManager.CreateNumber();
-	scoreNumberR->SetPos(coinIcon->position - glm::vec2(0.74,0));
-	scoreNumberR->SetScale(coinIcon->scale);
-	scoreNumberR->SetPadding(0.8f);
+	SetScorePosAndScale({ 7.5,4 }, 0.66f, false);
+	constexpr float fadeInEndScale = 1.5f;
+	fadeInAnimSpline.addNextPoint({ -0.2,0 });
+	fadeInAnimSpline.addNextPoint({ -0.1,0 });
+	fadeInAnimSpline.addNextPoint({ 0,0 });
+	fadeInAnimSpline.addNextPoint({ 0.6, fadeInEndScale });
+	fadeInAnimSpline.addNextPoint({ 1.f, fadeInEndScale });
+	fadeInAnimSpline.addNextPoint({ 1.1, fadeInEndScale });
+	fadeInAnimSpline.addNextPoint({ 1.2, fadeInEndScale });
 }
 
 void ChickenWings::ResetGame() {
@@ -90,6 +94,8 @@ void ChickenWings::ResetGame() {
 		lanterns[i].quad->position.y = spline->sampleHight(lanterns[i].quad->position.x) + 1.2f;
 		lanterns[i].light->lightPos = lanterns[i].quad->position;
 	}
+
+	SetScorePosAndScale({ 7.5,4 }, 0.66f, false);
 
 	minecart->reset();
 }
@@ -148,7 +154,9 @@ void ChickenWings::Update()
 
 
 	if (isGameOver) {
-		gameOverQuad->draw = true;
+		AnimateGameOver();
+		gameOverTime += deltaTime();
+
 		if (glfwGetKey(ChickenWings::game.window, GLFW_KEY_SPACE)) {
 			ResetGame();
 		}
@@ -199,10 +207,57 @@ void ChickenWings::GenerateNextPointOnSpline()
 }
 
 void ChickenWings::StopGame() {
+	if (isGameOver != true) {
+		gameOverTime = 0.f;
+	}
 	isGameOver = true;
+}
+
+void ChickenWings::AnimateGameOver()
+{
+	gameOverQuad->draw = true;
+
+	constexpr float screenAnimTime = 0.5f;
+	if (gameOverTime < screenAnimTime) {
+		float t = gameOverTime / screenAnimTime;
+		gameOverQuad->scale = glm::vec2(10, 3) * glm::smoothstep(0.2f, 1.f, t);
+	}
+	else {
+		gameOverQuad->scale = glm::vec2(10, 3);
+	}
+	constexpr float scoreFadeOutTime = 0.4f;
+	constexpr float scoreFadeInTime = 0.4;
+	if (gameOverTime < scoreFadeOutTime) {
+		float t = gameOverTime / scoreFadeOutTime;
+		float bonusX = (scoreNumberR->GetWidth() + 2.f) *  glm::smoothstep(0.f, 1.f, t);
+		SetScorePosAndScale({ 7.5 + bonusX,4 }, 0.66f, false);
+	}
+	else if (gameOverTime < scoreFadeInTime + scoreFadeOutTime) {
+		float t = (gameOverTime - scoreFadeOutTime) / scoreFadeInTime;
+		float s = fadeInAnimSpline.sampleHight(t);
+		std::cout << "t " << t << " s " << s << std::endl;
+		SetScorePosAndScale({ 0, -1.5f }, fadeInAnimSpline.sampleHight(t), true);
+	}
+	else {
+		SetScorePosAndScale({ 0, -1.5f }, 1.5f, true);
+	}
 }
 
 uint32_t ChickenWings::Score()
 {
 	return meterScore + bounsScore;
+}
+
+void ChickenWings::SetScorePosAndScale(const glm::vec2& pos, const float& scale, bool centered)
+{
+	constexpr float padding = 0.8f;
+	coinIcon->scale = glm::vec2(scale);
+	coinIcon->position = pos;
+	if (centered) {
+		coinIcon->position.x += padding * 0.5f * scale * glm::floor(std::log10(Score()) + 1);
+	}
+	scoreNumberR->SetPos(pos - glm::vec2(0.74, 0));
+	scoreNumberR->SetScale(coinIcon->scale);
+	scoreNumberR->SetPadding(padding);
+	scoreNumberR->SetCentered(centered);
 }

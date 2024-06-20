@@ -21,9 +21,12 @@ public:
 	std::shared_ptr<Spline> spline;
 
 	bool isGameOver = false;
-
 	
 private:
+	float gameOverTime = 0.f;
+	Spline fadeInAnimSpline;
+	void AnimateGameOver();
+
 	uint32_t Score();
 	uint32_t bounsScore = 0;
 	uint32_t meterScore = 0;
@@ -39,6 +42,7 @@ private:
 	std::unique_ptr<SplineRenderer> splineRendererB;
 	std::unique_ptr<SplineRenderer> splineRendererL;
 
+	void SetScorePosAndScale(const glm::vec2& pos, const float& scale, bool centered);
 	std::shared_ptr<Quad>   coinIcon;
 	std::shared_ptr<Number> scoreNumberR;
 
