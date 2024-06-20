@@ -7,11 +7,18 @@ std::unique_ptr<Texture> UberShader::fallbackTexture = nullptr;
 std::unique_ptr<Texture> UberShader::fallbackNormals = nullptr;
 glm::vec2 UberShader::cameraPosition = { 0,4.5 };
 
+UberVertex::UberVertex() {
+	this->pos = glm::vec2(0, 0);
+	this->tex = glm::vec2(0, 0);
+	this->normal = glm::vec3(0, 0, 1.f);
+}
+
 UberVertex::UberVertex(const glm::vec2& pos)
 {
 	this->pos = pos;
 	this->tex = pos;
 	tex.y = -tex.y;
+	normal = glm::vec3(0, 0, 1.f);
 }
 
 UberVertex::UberVertex(const float& x, const float& y)
@@ -20,12 +27,14 @@ UberVertex::UberVertex(const float& x, const float& y)
 	pos.y = y;
 	tex.x = x;
 	tex.y = -y;
+	normal = glm::vec3(0, 0, 1.f);
 }
 
 UberVertex::UberVertex(const glm::vec2& pos, const glm::vec2& tex)
 {
 	this->pos = pos;
 	this->tex = tex;
+	normal = glm::vec3(0, 0, 1.f);
 }
 
 UberVertex::UberVertex(const float& x, const float& y, const float& u, const float& v)
@@ -34,6 +43,14 @@ UberVertex::UberVertex(const float& x, const float& y, const float& u, const flo
 	pos.y = y;
 	tex.x = u;
 	tex.y = v;
+	normal = glm::vec3(0, 0, 1.f);
+}
+
+UberVertex::UberVertex(const glm::vec2& pos, const glm::vec2& tex, const glm::vec3& normal)
+{
+	this->pos = pos;
+	this->tex = tex;
+	this->normal = normal;
 }
 
 void UberShader::Initialize()
@@ -46,29 +63,43 @@ void UberShader::Initialize()
 	const std::string vertexShaderSource = "#version 330 core\n"
 		"layout (location = 0) in vec2 aPos;\n"
 		"layout (location = 1) in vec2 aTex;\n"
+		"layout (location = 2) in vec3 aNormal;\n"
 		"uniform vec2  cameraOffset;\n"
 		"uniform vec2  pos; \n"
 		"uniform vec2  scale; \n"
 		"uniform vec2  uvOffset;\n"
 		"uniform vec2  uvScale;\n"
-		"uniform float rotation; \n"
+		"uniform float sinR; \n"
+		"uniform float cosR; \n"
 		"uniform float depth;\n"
 		"\n"
+		"uniform bool useNormalTex;\n"
+		"\n"
 		"out vec2 TexCoord;\n"
-		"out vec2 FragPos;\n"
 		"out vec3 Normal;\n"
 		"\n"
 		"void main()\n"
 		"{\n"
-		"   float rotX = cos(rotation) * aPos.x - sin(rotation) * aPos.y;\n"
-		"   float rotY = sin(rotation) * aPos.x + cos(rotation) * aPos.y;\n"
+		// Setup rotation
+		// world pos
+		"   float rotX = cosR * aPos.x - sinR * aPos.y;\n"
+		"   float rotY = sinR * aPos.x + cosR * aPos.y;\n"
 		"	vec2 wPos = vec2(rotX, rotY) * scale + pos;\n"
 		"   vec2 sPos =  (wPos + cameraOffset) * vec2(1.0/8.0, 1.0/4.5);\n"
 		"   gl_Position = vec4(sPos.x, sPos.y, depth, 1.0);\n"
+		// texture coords
 		"   TexCoord = (aTex + uvOffset) * uvScale;\n"
-		"   FragPos  = wPos;\n"
-		"   Normal   = vec3(0,0,1);\n"
+	    // Normals
+		"   if(!useNormalTex)\n"
+		"	{\n"
+		"		float nRotX = cosR * aNormal.x - sinR * aNormal.y;\n"
+		"		float nRotY = sinR * aNormal.x + cosR * aNormal.y;\n"
+		"		Normal      = vec3(nRotX, nRotY, aNormal.z);\n"
+		"	} else {\n"
+		"		Normal      = vec3(0,0,1);"
+		"	}\n"
 		"}\0";
+
 	const std::string fragmentShaderSource = "#version 330 core\n"
 		"in vec2 TexCoord;\n"
 		"in vec2 FragPos;\n"
@@ -76,10 +107,16 @@ void UberShader::Initialize()
 		"\n"
 		"uniform bool useAlpha;\n"
 		"uniform float alphaThreshold;\n"
-		"uniform sampler2D ColorTex;\n"
-		"uniform sampler2D NormalTex;\n"
 		"\n"
-		"layout(location = 0) out vec3 gPosition;\n"
+		"uniform sampler2D ColorTex;\n"
+		"\n"
+		"uniform bool useNormalTex;\n"
+		"uniform sampler2D NormalTex;\n"
+		"uniform float sinR; \n"
+		"uniform float cosR; \n"
+		"uniform int depthInt;\n"
+		"\n"
+		"layout(location = 0) out float gLayer;\n"
 		"layout(location = 1) out vec3 gNormal;\n"
 		"layout(location = 2) out vec3 gAlbedo;\n"
 		"\n"
@@ -90,9 +127,17 @@ void UberShader::Initialize()
 		"		float alpha = texture(ColorTex, TexCoord).a;\n"
 		"		if(alpha < alphaThreshold) discard;\n"
 		"   }\n"
-		"   gPosition = vec3(FragPos,1);\n"
-		"   gNormal = (texture(NormalTex, TexCoord).rgb - 0.5f) * 2;\n"
+		"   gLayer = depthInt / 255.f;\n"
 		"   gAlbedo = texture(ColorTex, TexCoord).rgb;\n"
+		"   if(useNormalTex)\n"
+		"   {\n"
+		"		vec3  normal = (texture(NormalTex, TexCoord).rgb - 0.5f) * 2;\n"
+		"		float nRotX  = cosR * normal.x - sinR * normal.y;\n"
+		"		float nRotY  = sinR * normal.x + cosR * normal.y;\n"
+		"		gNormal      = vec3(nRotX, nRotY, normal.z);\n"
+		"   } else {\n"
+		"		gNormal = Normal;\n"
+		"   }\n"
 		"}\n\0";
 
 	uber = std::make_unique<Shader>(vertexShaderSource, fragmentShaderSource);
@@ -117,8 +162,11 @@ void UberShader::DrawElements(const UberData& settings, const unsigned int& VAO,
 	uber->setVec2("cameraOffset", -cameraPosition);
 	uber->setVec2("pos", settings.position);
 	uber->setVec2("scale", settings.scale);
-	uber->setFloat("rotation", settings.rotation);
-	uber->setFloat("depth", 1.f - (settings.layer * 1.f / std::numeric_limits<uint8_t>::max()));
+	uber->setFloat("sinR", glm::sin(settings.rotation));
+	uber->setFloat("cosR", glm::cos(settings.rotation));
+	float depth = 1 - ((settings.layer * 0.9f / std::numeric_limits<uint8_t>::max()) + 0.05f);
+	uber->setFloat("depth", depth);
+	uber->setInt("depthInt", 255-settings.layer);
 
 	uber->setBool("useAlpha", settings.useAlpha && colorTex->hasAlpha());
 	uber->setFloat("alphaThreshold", settings.alphaThreshold);
@@ -127,6 +175,7 @@ void UberShader::DrawElements(const UberData& settings, const unsigned int& VAO,
 	uber->setVec2("uvScale", settings.uvScale);
 	uber->setInt("ColorTex", 0);
 	colorTex->Bind(0);
+	uber->setBool("useNormalTex", settings.useNormalTex);
 	uber->setInt("NormalTex", 1);
 	normalTex->Bind(1);
 
@@ -181,11 +230,14 @@ MeshBuffers UberShader::UploadMesh(const std::vector<UberVertex>& vertexBuffer, 
 	// 4. then set the vertex attributes pointers
 
 	// Position
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	// TexCords
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+	// Normals
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(4 * sizeof(float)));
+	glEnableVertexAttribArray(2);
 
 	result.lower = glm::vec2(std::numeric_limits<float>::max());
 	result.upper = glm::vec2(std::numeric_limits<float>::lowest());

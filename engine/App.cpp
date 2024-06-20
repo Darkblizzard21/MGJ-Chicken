@@ -74,7 +74,9 @@ App::App(std::string title, int width, int height) : title_(title), width_(width
 
 	// set up composit pass
 	compositPass_.Initalize();
+#ifdef DEBUG
 	compositPass_.EnableDebug();
+#endif
 
 	// enalbe depth	
 	glEnable(GL_DEPTH_TEST);
@@ -86,6 +88,12 @@ App::App(std::string title, int width, int height) : title_(title), width_(width
 	deltaTime_ = 1 / targetFrameRate;
 
 	quadManager.Initialize();
+	
+	backgroundQuad = quadManager.CreateQuad();
+	backgroundQuad->layer = 0;
+	backgroundQuad->scale = glm::vec2(17, 10);
+	std::vector<glm::vec3> fallback = { glm::vec3(0.6f, 0.3f, 0.3f) };
+	backgroundQuad->colorTexture = std::make_shared<Texture>(fallback, 1, 1);
 }
 
 App::~App()
@@ -103,24 +111,20 @@ void App::run()
 	lastFrame_ = gameStart_;
 
 
-#ifdef DEBUG
 	float f1FlipTime = -1.f;
-#endif 
 	while (!glfwWindowShouldClose(window))
 	{
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, true);
 
-#ifdef DEBUG
 		if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS && f1FlipTime < 0.0f) {
-			f1FlipTime = 0.2;
+			f1FlipTime = 0.2f;
 			compositPass_.FlipDebug();
 			std::cout << "flip" << std::endl;
 		}
 		else {
 			f1FlipTime = std::max(f1FlipTime - deltaTime(), -1.f);
 		}
-#endif
 
 		// update physics
 		Timer physicsT("Loop::Physiks");
@@ -135,6 +139,7 @@ void App::run()
 
 
 		Timer renderT("Loop::Render");
+		backgroundQuad->position = UberShader::cameraPosition;
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glScissor(0, 0, width_, height_);
@@ -147,7 +152,7 @@ void App::run()
 
 		glScissor(hPadding_, vPadding_, width_ - 2 * hPadding_, height_ - 2 * vPadding_);
 		glViewport(hPadding_, vPadding_, width_ - 2 * hPadding_, height_ - 2 * vPadding_);
-		glClearColor(0.6f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.f, 0.f, 0.f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		Timer renderTO("Loop::Render::RenderObjects");
@@ -161,7 +166,7 @@ void App::run()
 		// 2. lighting pass
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		compositPass_.Execute(gAlbedo, gNormal, gPosition);
+		compositPass_.Execute(gAlbedo, gNormal, gLayer);
 
 		// finish
 		Timer renderTS("Loop::Render::glfwSwapBuffers");
@@ -227,12 +232,12 @@ void App::ResizeBuffers(const int& width, const int& height)
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 
 	// - position color buffer
-	glGenTextures(1, &gPosition);
-	glBindTexture(GL_TEXTURE_2D, gPosition);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+	glGenTextures(1, &gLayer);
+	glBindTexture(GL_TEXTURE_2D, gLayer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gPosition, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gLayer, 0);
 
 	// - normal color buffer
 	glGenTextures(1, &gNormal);
@@ -253,17 +258,28 @@ void App::ResizeBuffers(const int& width, const int& height)
 	// bind
 	unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
 	glDrawBuffers(3, attachments);
+
+	glGenRenderbuffers(1, &rboDepth);
+	glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+	// finally check if framebuffer is complete
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		std::cout << "Framebuffer not complete! resize again!" << std::endl;
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void App::CleanBuffers()
 {
-	if (gBuffer != -1) {
-		glDeleteFramebuffers(1, &gBuffer);
-		gBuffer = -1;
+	if (rboDepth != -1) {
+		glDeleteRenderbuffers(1, &rboDepth);
+		rboDepth = -1;
 	}
-	if (gPosition != -1) {
-		glDeleteTextures(1, &gPosition);
-		gPosition = -1;
+
+	if (gLayer != -1) {
+		glDeleteTextures(1, &gLayer);
+		gLayer = -1;
 	}
 	if (gNormal != -1) {
 		glDeleteTextures(1, &gNormal);
@@ -272,6 +288,11 @@ void App::CleanBuffers()
 	if (gAlbedo != -1) {
 		glDeleteTextures(1, &gAlbedo);
 		gAlbedo = -1;
+	}
+
+	if (gBuffer != -1) {
+		glDeleteFramebuffers(1, &gBuffer);
+		gBuffer = -1;
 	}
 }
 

@@ -3,10 +3,14 @@
 #include <iostream>
 #include <UberShader.h>
 #include <Timer.h>
+#include <utility>  
 
 SplineRenderer::SplineRenderer(std::shared_ptr<Spline> spline, SplineMode mode) : mode(mode)
 {
 	SetSpline(spline);
+	if (mode == SplineMode::Line) {
+		layer += 10;
+	}
 }
 
 SplineRenderer::~SplineRenderer()
@@ -30,6 +34,8 @@ void SplineRenderer::Render()
 	data.uvOffset = uvOffset;
 	data.uvScale = uvScale;
 	data.colorTexture = texture;
+	data.useNormalTex = false;
+
 	for (const auto& segment : splineSegments)
 	{
 		if (UberShader::InFrustum(segment.buffers, renderOffset)) {
@@ -55,7 +61,7 @@ void SplineRenderer::Rebuild(bool force)
 		std::cout << "SplineRenderer::Rebuild: Spline was to short" << std::endl;
 		return;
 	}
-	Timer timer("SplineRenderer::Rebuild");
+	//Timer timer("SplineRenderer::Rebuild");
 
 	while (!splineSegments.empty() && splineSegments[0].startPoint != splinePoints[1])
 	{
@@ -104,19 +110,19 @@ SplineRenderer::SplineSegment SplineRenderer::CreateSplineSegmentFor(const int& 
 	const auto startPoint = spline_->getPoint(0.f, n);
 	const auto endPoint = spline_->getPoint(1.f, n);
 
-	glm::vec4 startVerts = GetVertices(0.f, n, true);
-	vertices.push_back(UberVertex(startVerts.x, startVerts.y));
-	vertices.push_back(UberVertex(startVerts.z, startVerts.w));
+	auto startVerts = GetVertices(0.f, n, true);
+	vertices.push_back(startVerts.first);
+	vertices.push_back(startVerts.second);
 
 
 	for (size_t i = 0; i < (sampleDensity - 1); i++)
 	{
 		float t = (i + 1.f) / (sampleDensity);
 		float x = glm::mix(startPoint.x, endPoint.x, t);
-		glm::vec4 verts = GetVertices(x, n);
+		auto verts = GetVertices(x, n);
 
-		vertices.push_back(UberVertex(verts.x, verts.y));
-		vertices.push_back(UberVertex(verts.z, verts.w));
+		vertices.push_back(verts.first);
+		vertices.push_back(verts.second);
 
 		const auto size = (glm::uint32_t)vertices.size();
 
@@ -130,9 +136,9 @@ SplineRenderer::SplineSegment SplineRenderer::CreateSplineSegmentFor(const int& 
 	}
 
 
-	glm::vec4 endVerts = GetVertices(1.f, n, true);
-	vertices.push_back(UberVertex(endVerts.x, endVerts.y));
-	vertices.push_back(UberVertex(endVerts.z, endVerts.w));
+	auto endVerts = GetVertices(1.f, n, true);
+	vertices.push_back(endVerts.first);
+	vertices.push_back(endVerts.second);
 
 	const auto size = (glm::uint32_t)vertices.size();
 
@@ -150,9 +156,9 @@ SplineRenderer::SplineSegment SplineRenderer::CreateSplineSegmentFor(const int& 
 	return result;
 }
 
-glm::vec4 SplineRenderer::GetVertices(float xt, int n, bool useT)
+std::pair<UberVertex, UberVertex> SplineRenderer::GetVertices(float xt, int n, bool useT)
 {
-	glm::vec4 result = {};
+	std::pair<UberVertex, UberVertex> result;
 	switch (mode)
 	{
 	case SplineMode::FillBelow: {
@@ -167,29 +173,27 @@ glm::vec4 SplineRenderer::GetVertices(float xt, int n, bool useT)
 			y = spline_->sampleHight(xt, n);
 		}
 
-		result.x = x;
-		result.y = ybaseLine;
-		result.z = x;
-		result.w = std::max(y, ybaseLine);
+		result.first = UberVertex(x, ybaseLine);
+		result.second = UberVertex(x, std::max(y, ybaseLine));
 		break;
 	}
 	case SplineMode::Line: {
 		float t = useT ? xt : spline_->sampleT(xt, n);
 		const glm::vec2 p = spline_->getPoint(t, n);
 		const glm::vec2 normal = spline_->getNormal(t, n);
+		const glm::vec3 normal3 = glm::vec3(normal.x, normal.y, 0.f);
 
 		const glm::vec2 l = p - normal * lowerWidth;
 		const glm::vec2 u = p + normal * upperWidth;
-		result.x = l.x;
-		result.y = l.y;
-		result.z = u.x;
-		result.w = u.y;
+
+		result.first = UberVertex(l, l, -normal3);
+		result.second = UberVertex(u, u, normal3);
 		break;
 	}
 	default:
 		std::cout << "Unkown Spline Type!" << std::endl;
 		break;
 	}
-	return result;
+	return std::move(result);
 }
 

@@ -27,8 +27,34 @@ private:
 	std::unique_ptr<SplineRenderer> splineRendererB;
 	std::unique_ptr<SplineRenderer> splineRendererL;
 
-	float slopehight = 0;
+
+	struct Lantern
+	{
+
+		std::shared_ptr<Quad> quad;
+		std::shared_ptr<PointLight> light;
+	}; 
+	Lantern lanterns[8];
+	int lastLantern = 0;
+	float lanternStep = 5.f;
+
+	float xPos = -8;
 	float timeToNextExpansion = 0;
-	int splineSegmentCounter = -4;
 	std::unique_ptr<ContactListener> contactListener;
+
+	//PCG
+	int splineSegmentCounter = -4;
+	float slopehight = 0;
+	float slopehightIncrement = 1;
+
+	float SplineXStep = 6;
+	
+	float splineLeanth = 6;
+
+	float splineHightVariance = 2;
+	int currentLevel = 1;
+
+	void GenerateNextPointOnSpline();
+
+
 };

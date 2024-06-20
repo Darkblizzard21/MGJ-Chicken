@@ -36,22 +36,25 @@ public:
 	b2World world;
 
 	QuadManager quadManager;
+
+protected:
+	DeferredCompositPass compositPass_;
 private:
 	void ResizeBuffers(const int& width, const int& height);
 	void CleanBuffers();
 
 	unsigned int gBuffer = -1;
-	unsigned int gPosition = -1; 
+	unsigned int gLayer = -1; 
 	unsigned int gNormal = -1; 
 	unsigned int gAlbedo = -1;
-
-	DeferredCompositPass compositPass_;
+	unsigned int rboDepth = -1;
 
 	int width_;
 	int height_;
 	int hPadding_ = 0;
 	int vPadding_ = 0;
-
+	
+	std::shared_ptr<Quad> backgroundQuad;
 
 	std::string title_;
 

@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <string>
+#include <vector>
 
 class Shader {
 public:
@@ -18,7 +19,12 @@ public:
     void setInt(const std::string& name, int value) const;
     void setFloat(const std::string& name, float value) const;
     void setVec2(const std::string& name, const glm::vec2& value) const;
+    void setVec3(const std::string& name, const glm::vec3& value) const;
     void setMat4x4(const std::string& name, const glm::mat4x4& value) const;
+
+    void setFloatV(const std::string& name, const std::vector<float>& value) const;
+    void setVec2V(const std::string& name, const std::vector<glm::vec2>& value) const;
+    void setVec3V(const std::string& name, const std::vector<glm::vec3>& value) const;
 
     // getFunctions
     unsigned int getProgramId() const;
