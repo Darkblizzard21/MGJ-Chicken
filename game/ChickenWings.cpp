@@ -27,13 +27,14 @@ void ChickenWings::StartUp() {
 	}
 
 	std::vector<glm::vec3> ground = { glm::vec3(74 / 255.f, 39 / 255.f, 9 / 255.f) };
-	splineRendererB->texture = std::make_shared<Texture>(ground, 1, 1, SamplerTypes::NearestNeighbour);
+	splineRendererB->texture = std::make_shared<Texture>("Ground.png", SamplerTypes::NearestNeighbour);
+	splineRendererB->uvScale = glm::vec2(0.2f, 0.2f);
 
 	splineRendererL = std::make_unique<SplineRenderer>(spline, SplineMode::Line);
 	splineRendererL->upperWidth = 0.0f;
 	splineRendererL->layer++;
-	std::vector<glm::vec3> metal = { glm::vec3(0.75, 0.75, 0.75) };
-	splineRendererL->texture = std::make_shared<Texture>(metal, 1, 1, SamplerTypes::NearestNeighbour);
+	std::vector<glm::vec3> metal = { glm::vec3(0.5f, 0.5f, 0.5f) };
+	splineRendererL->texture = std::make_shared<Texture>("rail.png", SamplerTypes::NearestNeighbour);
 
 
 	// create lanterns
