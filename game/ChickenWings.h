@@ -6,6 +6,7 @@
 #include "SplineRenderer.h"
 #include "ContactListener.h"
 #include "Obstacle.h"
+#include "Coin.h"
 #include <queue>
 
 class ChickenWings : public App {
@@ -19,6 +20,7 @@ public:
 	void StopGame();
 	void ShowFrontflip();
 	void ShowBackflip();
+	void ScoreCoin();
 
 	std::shared_ptr<Spline> spline;
 
@@ -40,6 +42,9 @@ private:
 	std::unique_ptr<Minecart> minecart;
 	std::vector<std::unique_ptr<Obstacle>> obstacles;
 	float timeUntilNextObstacle = 5;
+
+	std::vector<std::unique_ptr<Coin>> coins;
+	float timeUntilNextCoin = 12;
 
 	std::unique_ptr<SplineRenderer> splineRendererB;
 	std::unique_ptr<SplineRenderer> splineRendererL;

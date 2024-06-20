@@ -13,7 +13,7 @@ ChickenWings::ChickenWings(std::string name)
 void ChickenWings::StartUp() {
 	minecart = std::make_unique<Minecart>();
 
-	contactListener = std::make_unique<ContactListener>(*minecart, obstacles);
+	contactListener = std::make_unique<ContactListener>(*minecart, obstacles, coins);
 	world.SetContactListener(contactListener.get());
 
 	gameOverQuad = uiManager.CreateQuad(std::make_shared < Texture>("GameOver.png"));
@@ -135,17 +135,30 @@ void ChickenWings::Update()
 		if (obstacles.size() > 4) {
 			obstacles.erase(obstacles.begin());
 		}
-
-
-
 	}
 
 	for (int i = obstacles.size() - 1; i >= 0; i--)
 	{
 		if (obstacles[i]->isMarkdForDeletion) {
-			std::cout << "Obsacle Deleated" << std::endl;
-
 			obstacles.erase(obstacles.begin() + i);
+		}
+
+	}
+
+	timeUntilNextCoin -= deltaTime();
+	if (timeUntilNextCoin <= 0) {
+		timeUntilNextCoin = 12;
+		coins.push_back(std::make_unique<Coin>(UberShader::cameraPosition.x + 10));
+
+		if (coins.size() > 4) {
+			coins.erase(coins.begin());
+		}
+	}
+
+	for (int i = coins.size() - 1; i >= 0; i--)
+	{
+		if (coins[i]->isMarkdForDeletion) {
+			coins.erase(coins.begin() + i);
 		}
 
 	}
@@ -229,6 +242,10 @@ void ChickenWings::StopGame() {
 		gameOverTime = 0.f;
 	}
 	isGameOver = true;
+}
+
+void ChickenWings::ScoreCoin() {
+	bonusScore += 300;
 }
 
 void ChickenWings::ShowFrontflip() {
