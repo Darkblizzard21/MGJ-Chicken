@@ -21,6 +21,16 @@ void ChickenWings::StartUp() {
 	gameOverQuad->scale = glm::vec2(10, 3);
 	gameOverQuad->layer = 200;
 
+	backflipQuad = uiManager.CreateQuad(std::make_shared < Texture>("backflip.png"));
+	gameOverQuad->draw = false;
+	gameOverQuad->scale = glm::vec2(8, 8);
+	gameOverQuad->layer = 200;
+
+	frontflipQuad = uiManager.CreateQuad(std::make_shared < Texture>("frontflip.png"));
+	gameOverQuad->draw = false;
+	gameOverQuad->scale = glm::vec2(8, 8);
+	gameOverQuad->layer = 200;
+
 	spline = std::make_shared<Spline>();
 	for (int32_t i = -4; i < 15; i++)
 	{
@@ -88,7 +98,7 @@ void ChickenWings::ResetGame() {
 	gameOverQuad->draw = false;
 	isGameOver = false;
 	meterScore = 0;
-	bounsScore = 0;
+	bonusScore = 0;
 
 	for (size_t i = 0; i < 8; i++)
 	{
@@ -170,9 +180,11 @@ void ChickenWings::Update()
 		}
 	}
 	else {
-		meterScore = glm::max(meterScore, (uint32_t)(minecart->quad->position.x * 4.f));
+		meterScore = glm::max(meterScore, (uint32_t)(minecart->quad->position.x * 12.f));
 		scoreNumberR->SetNumber(Score());
 	}
+
+	UpdateFlipAnimation();
 }
 
 void ChickenWings::RenderObjects()
@@ -221,6 +233,52 @@ void ChickenWings::StopGame() {
 	isGameOver = true;
 }
 
+void ChickenWings::ShowFrontflip() {
+	frontflipQuad->scale = { 0, 0 };
+	frontflipQuad->draw = true;
+	flipAnimationProgress = 0;
+	isShowingFrontflip = true;
+	bonusScore += 500;
+}
+
+void ChickenWings::ShowBackflip() {
+	backflipQuad->scale = { 0, 0 };
+	backflipQuad->draw = true;
+	flipAnimationProgress = 0;
+	isShowingBackflip = true;
+	bonusScore += 500;
+}
+
+void ChickenWings::UpdateFlipAnimation() {
+	if (isShowingBackflip) {
+		flipAnimationProgress += deltaTime() / flipAnimationDuration;
+		if (flipAnimationProgress >= 1) {
+			isShowingBackflip = false;
+			backflipQuad->draw = false;
+			return;
+		}
+
+		float scaleFactor = fadeInAnimSpline.sampleHight(flipAnimationProgress);
+
+		backflipQuad->position = { 0, 0 };
+		backflipQuad->scale = { 5 * scaleFactor, 5 * scaleFactor };
+	}
+
+	if (isShowingFrontflip) {
+		flipAnimationProgress += deltaTime() / flipAnimationDuration;
+		if (flipAnimationProgress >= 1) {
+			isShowingFrontflip = false;
+			frontflipQuad->draw = false;
+			return;
+		}
+
+		float scaleFactor = fadeInAnimSpline.sampleHight(flipAnimationProgress);
+
+		frontflipQuad->position = { 0, 0 };
+		frontflipQuad->scale = { 5 * scaleFactor, 5 * scaleFactor };
+	}
+}
+
 void ChickenWings::AnimateGameOver()
 {
 	gameOverQuad->draw = true;
@@ -253,7 +311,7 @@ void ChickenWings::AnimateGameOver()
 
 uint32_t ChickenWings::Score()
 {
-	return meterScore + bounsScore;
+	return meterScore + bonusScore;
 }
 
 void ChickenWings::SetScorePosAndScale(const glm::vec2& pos, const float& scale, bool centered)

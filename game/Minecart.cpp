@@ -1,6 +1,7 @@
 #include "Minecart.h"
 #include <GLFW/glfw3.h>
 #include "ChickenWings.h"
+#include <iostream>
 
 Minecart::Minecart() {
 	quad = ChickenWings::game.quadManager.CreateQuad(std::make_shared<Texture>("Minecart.png"), std::make_shared<Texture>("MinecartN.png"));
@@ -69,6 +70,20 @@ void Minecart::update()
 
 	collisionExecutedThisFrame = false;
 
+	if (isAirborn) {
+		float deltaAngle = body->GetAngle() - lastFrameRotation;
+		rotationDuringJump += deltaAngle;
+		lastFrameRotation = body->GetAngle();
+
+		// +/-1 is threshold reduction to make it easier
+		if (rotationDuringJump > 2 * b2_pi - 1) {
+			ChickenWings::game.ShowBackflip();
+		}
+		else if (rotationDuringJump < -2 * b2_pi + 1) {
+			ChickenWings::game.ShowFrontflip();
+		}
+	}
+
 	if (ChickenWings::game.isGameOver)
 		return;
 
@@ -80,10 +95,11 @@ void Minecart::update()
 	if (!wasSpacePressed && !isAirborn && glfwGetKey(ChickenWings::game.window, GLFW_KEY_SPACE)) {
 		wasSpacePressed = true;
 
-		// up vector
 		b2Vec2 forceVector = b2Vec2(0, jumpForce);
-
 		body->ApplyLinearImpulseToCenter(forceVector, true);
+
+		rotationDuringJump = 0;
+		lastFrameRotation = body->GetAngle();
 
 		isAirborn = true;
 	}
@@ -126,14 +142,6 @@ void Minecart::onCollision(b2Contact* contact) {
 	if (collisionExecutedThisFrame)
 		return;
 	collisionExecutedThisFrame = true;
-
-	if (isAirborn) {
-		float downForce = 0.0f;
-		for (size_t i = 0; i < chickens.size(); i++)
-		{
-			chickens[i]->body->ApplyLinearImpulseToCenter(b2Vec2(0, -downForce), true);
-		}
-	}
 
 	isAirborn = false;
 
