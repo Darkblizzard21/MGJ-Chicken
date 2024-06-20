@@ -96,19 +96,28 @@ void Minecart::update()
 }
 
 void Minecart::onCollision(b2Contact* contact) {
+	int chickenCounter = 0;
+	int obstacleCounter = 0;
 	uintptr_t ptrA = contact->GetFixtureA()->GetUserData().pointer;
 	if (ptrA != 0) {
 		std::string tag = *reinterpret_cast<std::string*>(ptrA);
 		if (tag == "Chicken")
-			ChickenWings::game.StopGame();
+			chickenCounter++;
+		else if (tag == "Obstacle")
+			obstacleCounter++;
 	}
 	
 	uintptr_t ptrB = contact->GetFixtureB()->GetUserData().pointer;
 	if (ptrB != 0) {
 		std::string tag = *reinterpret_cast<std::string*>(ptrB);
 		if (tag == "Chicken")
-			ChickenWings::game.StopGame();
+			chickenCounter++;
+		else if (tag == "Obstacle")
+			obstacleCounter++;
 	}
+
+	if (chickenCounter == 1 && obstacleCounter == 0)
+		ChickenWings::game.StopGame();
 	
 	if (collisionExecutedThisFrame)
 		return;

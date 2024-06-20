@@ -18,6 +18,7 @@ void ChickenWings::StartUp() {
 	gameOverQuad = quadManager.CreateQuad(std::make_shared < Texture>("GameOver.png"));
 	gameOverQuad->position = glm::vec2(-500, 0);
 	gameOverQuad->scale = glm::vec2(10, 3);
+	gameOverQuad->layer = 200;
 
 	spline = std::make_shared<Spline>();
 	for (int32_t i = -4; i < 15; i++)
