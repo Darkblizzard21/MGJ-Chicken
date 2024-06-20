@@ -16,4 +16,6 @@ private:
 	std::string* tag;
 	
 	b2WeldJoint* weldJoint;
+	static std::shared_ptr<Texture> colorTex;
+	static std::shared_ptr<Texture> normalTex;
 };

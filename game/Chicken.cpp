@@ -1,8 +1,13 @@
 #include "Chicken.h"
 #include "ChickenWings.h"
 
+std::shared_ptr<Texture> Chicken::colorTex = nullptr;
+std::shared_ptr<Texture> Chicken::normalTex = nullptr;
+
 Chicken::Chicken(b2Body* cartBody, float xOffset, float yOffset) {
-	quad = ChickenWings::game.quadManager.CreateQuad(std::make_shared<Texture>("ChickenWhite_closed.png"));
+	if (colorTex == nullptr) colorTex = std::make_shared<Texture>("ChickenWhite_closed.png");
+	if (normalTex == nullptr) normalTex = std::make_shared<Texture>("ChickenWhite_closedN.png");
+	quad = ChickenWings::game.quadManager.CreateQuad(colorTex, normalTex);
 	quad->scale = glm::vec2(0.5f, 0.5f);
 	quad->layer = 110;
 
