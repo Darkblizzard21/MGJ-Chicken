@@ -20,13 +20,15 @@ public:
 
 	std::shared_ptr<Spline> spline;
 
+
+	
 private:
 	glm::vec2 cameraOffset = { 0, 0 };
 	float maxOffset = 6;
 	float maxOffestVelo = 10.f;
 
 	std::unique_ptr<Minecart> minecart;
-	std::queue<std::unique_ptr<Obstacle>> obstacles;
+	std::vector<std::unique_ptr<Obstacle>> obstacles;
 	float timeUntilNextObstacle = 5;
 
 	std::unique_ptr<SplineRenderer> splineRendererB;

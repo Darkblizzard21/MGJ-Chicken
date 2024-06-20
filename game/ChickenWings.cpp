@@ -12,7 +12,7 @@ ChickenWings::ChickenWings(std::string name)
 void ChickenWings::StartUp() {
 	minecart = std::make_unique<Minecart>();
 
-	contactListener = std::make_unique<ContactListener>(*minecart);
+	contactListener = std::make_unique<ContactListener>(*minecart,obstacles);
 	world.SetContactListener(contactListener.get());
 
 	gameOverQuad = quadManager.CreateQuad(std::make_shared < Texture>("GameOver.png"));
@@ -91,12 +91,26 @@ void ChickenWings::Update()
 	timeUntilNextObstacle -= deltaTime();
 	if (timeUntilNextObstacle <= 0) {
 		timeUntilNextObstacle = 5;
-		obstacles.push(std::make_unique<Obstacle>(UberShader::cameraPosition.x + 10));
+		obstacles.push_back(std::make_unique<Obstacle>(UberShader::cameraPosition.x + 10));
 
 		if (obstacles.size() > 4) {
-			obstacles.pop();
+			obstacles.erase(obstacles.begin());
 		}
+
+
+
 	}
+
+	for (int i = obstacles.size() - 1; i >= 0; i--)
+	{
+		if (obstacles[i]->isMarkdForDeletion) {
+			std::cout << "Obsacle Deleated" << std::endl;
+
+			obstacles.erase(obstacles.begin() + i);
+		}
+
+	}
+
 	xPos += deltaTime();
 	//quad->position = glm::vec2(xPos, spline->sampleHight(xPos));
 
