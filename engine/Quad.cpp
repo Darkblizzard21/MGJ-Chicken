@@ -5,28 +5,41 @@
 
 QuadManager::~QuadManager()
 {
-	buffers.cleanUp();
+	buffers_.cleanUp();
 }
 
 void QuadManager::Initialize()
 {
-	InitializeMesh();
-	InitializeTexture();
-	initialized = true;
+	if (initialized_) return;
+	std::vector<UberVertex> vertices = {
+		// position | textcoord |
+		UberVertex(0.5f,  0.5f, 1.0f, 0.0f), // top right
+		UberVertex(0.5f, -0.5f, 1.0f, 1.0f), // bottom right
+		UberVertex(-0.5f, -0.5f, 0.0f, 1.0f), // bottom left
+		UberVertex(-0.5f,  0.5f, 0.0f, 0.0f), // top left 
+	};
+	std::vector<unsigned int> indices = {  // note that we start from 0!
+		0, 1, 3,   // first triangle
+		1, 2, 3    // second triangle
+	};
+
+	buffers_ = UberShader::UploadMesh(vertices, indices);
+
+	initialized_ = true;
 }
 
 std::shared_ptr<Quad> QuadManager::CreateQuad()
 {
-	if (!initialized) throw "no initialized";
+	if (!initialized_) throw "no initialized";
 	Quad* ptr = new Quad();
-	ptr->colorTexture = defaultColorTexture;
 	std::shared_ptr<Quad> quad = std::shared_ptr<Quad>(ptr);
-	quads.push_back(quad);
+	quads_.push_back(quad);
 	return quad;
 }
 
 std::shared_ptr<Quad> QuadManager::CreateQuad(std::shared_ptr<Texture> colorTexture, std::shared_ptr<Texture> normalTexture)
 {
+	if (!initialized_) throw "no initialized";
 	auto res = CreateQuad();
 	res->colorTexture = colorTexture;
 	res->normalTexture = normalTexture;
@@ -35,45 +48,23 @@ std::shared_ptr<Quad> QuadManager::CreateQuad(std::shared_ptr<Texture> colorText
 
 void QuadManager::RenderQuads()
 {
-	if (!initialized) throw "no initialized";
+	if (!initialized_) throw "no initialized";
+
 	std::vector<size_t> toremove = {};
-	for (size_t i = 0; i < quads.size(); i++)
+	for (size_t i = 0; i < quads_.size(); i++)
 	{
-		if (quads[i].use_count() == 1) {
+		if (quads_[i].use_count() == 1) {
 			toremove.push_back(i);
 			continue;
 		}
 
-		UberShader::DrawElements(*quads[i].get(), buffers);
+		UberShader::DrawElements(*quads_[i].get(), buffers_);
 	}
-	
+
 	size_t offset = 0;
 	for (size_t i = 0; i < toremove.size(); i++)
 	{
-		quads.erase(quads.begin() + (toremove[i] - offset));
+		quads_.erase(quads_.begin() + (toremove[i] - offset));
 		offset++;
 	}
 }
-
-void QuadManager::InitializeMesh()
-{
-	std::vector<UberVertex> vertices = {
-	// position | textcoord |
-	UberVertex(0.5f,  0.5f, 1.0f, 0.0f), // top right
-	UberVertex(0.5f, -0.5f, 1.0f, 1.0f), // bottom right
-	UberVertex(-0.5f, -0.5f, 0.0f, 1.0f), // bottom left
-	UberVertex(-0.5f,  0.5f, 0.0f, 0.0f), // top left 
-	};
-	std::vector<unsigned int> indices = {  // note that we start from 0!
-		0, 1, 3,   // first triangle
-		1, 2, 3    // second triangle
-	};
-
-	buffers = UberShader::UploadMesh(vertices, indices);
-}
-
-void QuadManager::InitializeTexture()
-{
-	defaultColorTexture = std::make_shared<Texture>("sheep.png");
-}
-

@@ -26,17 +26,13 @@ public:
 	std::shared_ptr<Quad> CreateQuad();
 	std::shared_ptr<Quad> CreateQuad(std::shared_ptr<Texture> colorTexture, std::shared_ptr<Texture> normalTexture = nullptr);
 
+
 	void RenderQuads();
 
 private:
-	void InitializeMesh();
-	void InitializeTexture();
+	bool initialized_ = false;
+	MeshBuffers buffers_;
 
-	bool initialized = false;
-	std::shared_ptr<Texture> defaultColorTexture;
-
-	MeshBuffers buffers;
-
-	std::vector<std::shared_ptr<Quad>> quads;
+	std::vector<std::shared_ptr<Quad>> quads_;
 
 };
