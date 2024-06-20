@@ -63,8 +63,13 @@ void ChickenWings::StartUp() {
 		lanterns[i].light->lightRadius = 3;
 	}
 
-	testNum = numberManager.CreateNumber();
-	testNum->SetPos({ -5,4 });
+	coinIcon = uiManager.CreateQuad(std::make_shared<Texture>("chickencoin.png"));
+	coinIcon->scale = { 0.66f, 0.66f };
+	coinIcon->position = { 7.5,4 };
+	scoreNumberR = numberManager.CreateNumber();
+	scoreNumberR->SetPos(coinIcon->position - glm::vec2(0.74,0));
+	scoreNumberR->SetScale(coinIcon->scale);
+	scoreNumberR->SetPadding(0.8f);
 }
 
 void ChickenWings::Update()
@@ -120,7 +125,7 @@ void ChickenWings::Update()
 
 
 	meters = glm::max(meters, (uint32_t) minecart->quad->position.x);
-	testNum->SetNumber(Score());
+	scoreNumberR->SetNumber(meters);
 }
 
 void ChickenWings::RenderObjects()

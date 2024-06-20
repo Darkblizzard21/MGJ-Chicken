@@ -74,6 +74,7 @@ void NumberManager::Update()
 		{
 			auto quad = quadManager->CreateQuad();
 			quad->uvGridSize = 4;
+			quad->colorTexture = numberTextureSheet;
 			number->quads_.push_back(quad);
 		}
 		while (number->quads_.size() > digits.size())

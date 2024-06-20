@@ -82,6 +82,8 @@ App::App(std::string title, int width, int height) : title_(title), width_(width
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	UberShader::Initialize();
 	// setup game systems
 	gameTime_ = 0;
@@ -179,13 +181,15 @@ void App::run()
 			glScissor(hP, vP, w, h);
 			glViewport(hP, vP, w, h);
 		}
+		glEnable(GL_BLEND);
 		const auto cameraPos = UberShader::cameraPosition;
 		UberShader::cameraPosition = glm::vec2(0, 0);
 		Timer renderTQUI("Loop::Render::UI");
 		uiManager.RenderQuads();
 		renderTQUI.finish();
 		UberShader::cameraPosition = cameraPos;
-
+		glDisable(GL_BLEND);
+#
 		// finish
 		Timer renderTS("Loop::Render::glfwSwapBuffers");
 		glfwSwapBuffers(window);

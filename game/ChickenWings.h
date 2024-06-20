@@ -38,7 +38,8 @@ private:
 	std::unique_ptr<SplineRenderer> splineRendererB;
 	std::unique_ptr<SplineRenderer> splineRendererL;
 
-	std::shared_ptr<Number> testNum;
+	std::shared_ptr<Quad>   coinIcon;
+	std::shared_ptr<Number> scoreNumberR;
 
 	struct Lantern
 	{
