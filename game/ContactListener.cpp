@@ -18,9 +18,9 @@ void ContactListener::BeginContact(b2Contact* contact) {
 			{
 				obsticles[i]->isMarkdForDeletion = true;
 			}
-			b2Vec2 forceVector = b2Vec2(0, 2);
+			b2Vec2 forceVector = b2Vec2(0, 1);
 			minecart.body->ApplyLinearImpulseToCenter(forceVector, true);
-			minecart.body->ApplyAngularImpulse(-2, true);
+			minecart.body->ApplyAngularImpulse(-1, true);
 		}
 
 	}
@@ -34,7 +34,7 @@ void ContactListener::BeginContact(b2Contact* contact) {
 			{
 				obsticles[i]->isMarkdForDeletion = true;
 			}
-			b2Vec2 forceVector = b2Vec2(0, 4);
+			b2Vec2 forceVector = b2Vec2(0, 3);
 			minecart.body->ApplyLinearImpulseToCenter(forceVector, true);
 			minecart.body->ApplyAngularImpulse(4, true);
 
