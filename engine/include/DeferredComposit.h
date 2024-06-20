@@ -31,6 +31,7 @@ public:
 	inline void FlipDebug() { debug = !debug; }
 	inline void EnableDebug() { debug = true; }
 	inline void DisableDebug() { debug = false; }
+	inline bool GetDebug() { return debug; }
 
 	std::shared_ptr<PointLight> CreatePointLight();
 

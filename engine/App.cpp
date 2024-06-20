@@ -171,6 +171,14 @@ void App::run()
 		compositPass_.Execute(gAlbedo, gNormal, gLayer);
 
 		// 3. UI pass
+		if (compositPass_.GetDebug()) {
+			const auto hP = width_ / 2 + hPadding_ / 2;
+			const auto vP = vPadding_ / 2;
+			const auto w = (width_ - 2 * hPadding_) / 2;
+			const auto h = (height_ - 2 * vPadding_) / 2;
+			glScissor(hP, vP, w, h);
+			glViewport(hP, vP, w, h);
+		}
 		const auto cameraPos = UberShader::cameraPosition;
 		UberShader::cameraPosition = glm::vec2(0, 0);
 		Timer renderTQUI("Loop::Render::UI");
@@ -242,13 +250,13 @@ void App::ResizeBuffers(const int& width, const int& height)
 	glGenFramebuffers(1, &gBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 
-	// - position color buffer
-	glGenTextures(1, &gLayer);
-	glBindTexture(GL_TEXTURE_2D, gLayer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+	// - color + specular color buffer
+	glGenTextures(1, &gAlbedo);
+	glBindTexture(GL_TEXTURE_2D, gAlbedo);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gLayer, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gAlbedo, 0);
 
 	// - normal color buffer
 	glGenTextures(1, &gNormal);
@@ -258,13 +266,14 @@ void App::ResizeBuffers(const int& width, const int& height)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gNormal, 0);
 
-	// - color + specular color buffer
-	glGenTextures(1, &gAlbedo);
-	glBindTexture(GL_TEXTURE_2D, gAlbedo);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
+	// - position color buffer
+	glGenTextures(1, &gLayer);
+	glBindTexture(GL_TEXTURE_2D, gLayer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gAlbedo, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gLayer, 0);
 
 	// bind
 	unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };

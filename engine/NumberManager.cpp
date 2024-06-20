@@ -89,6 +89,7 @@ void NumberManager::Update()
 			number->quads_[d]->position = number->pos_ - glm::vec2(xOffset, 0);
 			number->quads_[d]->scale = number->scale_;
 			number->quads_[d]->colorTexture = digitTextures_[digits[d]];
+
 		}
 
 		number->dirty_ = false;
