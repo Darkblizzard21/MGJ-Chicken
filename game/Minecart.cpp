@@ -46,7 +46,9 @@ Minecart::Minecart() {
 
 	body->SetAngularDamping(3.0f);
 
-	chickens.push_back(std::make_unique<Chicken>(body));
+	chickens.push_back(std::make_unique<Chicken>(body, 0.35f, 0));
+	chickens.push_back(std::make_unique<Chicken>(body, 0.05f, -0.03f));
+	chickens.push_back(std::make_unique<Chicken>(body, -0.2f, 0.05f));
 }
 
 void Minecart::update()
@@ -113,7 +115,7 @@ void Minecart::onCollision(b2Contact* contact) {
 	collisionExecutedThisFrame = true;
 
 	if (isAirborn) {
-		float downForce = 1.0f;
+		float downForce = 0.0f;
 		for (size_t i = 0; i < chickens.size(); i++)
 		{
 			chickens[i]->body->ApplyLinearImpulseToCenter(b2Vec2(0, -downForce), true);

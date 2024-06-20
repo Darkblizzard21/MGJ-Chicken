@@ -12,7 +12,7 @@ ChickenWings::ChickenWings(std::string name)
 void ChickenWings::StartUp() {
 	minecart = std::make_unique<Minecart>();
 
-	contactListener = std::make_unique<ContactListener>(*minecart);
+	contactListener = std::make_unique<ContactListener>(*minecart,obstacles);
 	world.SetContactListener(contactListener.get());
 
 	spline = std::make_shared<Spline>();
@@ -27,13 +27,14 @@ void ChickenWings::StartUp() {
 	}
 
 	std::vector<glm::vec3> ground = { glm::vec3(74 / 255.f, 39 / 255.f, 9 / 255.f) };
-	splineRendererB->texture = std::make_shared<Texture>(ground, 1, 1, SamplerTypes::NearestNeighbour);
+	splineRendererB->texture = std::make_shared<Texture>("Ground.png", SamplerTypes::NearestNeighbour);
+	splineRendererB->uvScale = glm::vec2(0.2f, 0.2f);
 
 	splineRendererL = std::make_unique<SplineRenderer>(spline, SplineMode::Line);
 	splineRendererL->upperWidth = 0.0f;
 	splineRendererL->layer++;
-	std::vector<glm::vec3> metal = { glm::vec3(0.75, 0.75, 0.75) };
-	splineRendererL->texture = std::make_shared<Texture>(metal, 1, 1, SamplerTypes::NearestNeighbour);
+	std::vector<glm::vec3> metal = { glm::vec3(0.5f, 0.5f, 0.5f) };
+	splineRendererL->texture = std::make_shared<Texture>("rail.png", SamplerTypes::NearestNeighbour);
 
 
 	// create lanterns
@@ -86,12 +87,26 @@ void ChickenWings::Update()
 	timeUntilNextObstacle -= deltaTime();
 	if (timeUntilNextObstacle <= 0) {
 		timeUntilNextObstacle = 5;
-		obstacles.push(std::make_unique<Obstacle>(UberShader::cameraPosition.x + 10));
+		obstacles.push_back(std::make_unique<Obstacle>(UberShader::cameraPosition.x + 10));
 
 		if (obstacles.size() > 4) {
-			obstacles.pop();
+			obstacles.erase(obstacles.begin());
 		}
+
+
+
 	}
+
+	for (int i = obstacles.size() - 1; i >= 0; i--)
+	{
+		if (obstacles[i]->isMarkdForDeletion) {
+			std::cout << "Obsacle Deleated" << std::endl;
+
+			obstacles.erase(obstacles.begin() + i);
+		}
+
+	}
+
 	xPos += deltaTime();
 	//quad->position = glm::vec2(xPos, spline->sampleHight(xPos));
 

@@ -20,6 +20,8 @@ public:
 
 	std::shared_ptr<Spline> spline;
 
+
+	
 private:
 	uint32_t Score();
 	uint32_t bounsScore = 0;
@@ -30,7 +32,7 @@ private:
 	float maxOffestVelo = 10.f;
 
 	std::unique_ptr<Minecart> minecart;
-	std::queue<std::unique_ptr<Obstacle>> obstacles;
+	std::vector<std::unique_ptr<Obstacle>> obstacles;
 	float timeUntilNextObstacle = 5;
 
 	std::unique_ptr<SplineRenderer> splineRendererB;
