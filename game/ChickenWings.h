@@ -60,7 +60,8 @@ private:
 	float splineHightVariance = 2;
 	int currentLevel = 1;
 
+	std::shared_ptr<Quad> gameOverQuad;
+	bool isGameOver = false;
+
 	void GenerateNextPointOnSpline();
-
-
 };

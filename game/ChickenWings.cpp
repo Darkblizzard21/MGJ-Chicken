@@ -15,6 +15,10 @@ void ChickenWings::StartUp() {
 	contactListener = std::make_unique<ContactListener>(*minecart);
 	world.SetContactListener(contactListener.get());
 
+	gameOverQuad = quadManager.CreateQuad(std::make_shared < Texture>("GameOver.png"));
+	gameOverQuad->position = glm::vec2(-500, 0);
+	gameOverQuad->scale = glm::vec2(10, 3);
+
 	spline = std::make_shared<Spline>();
 	for (int32_t i = -4; i < 15; i++)
 	{
@@ -34,7 +38,7 @@ void ChickenWings::StartUp() {
 	splineRendererL->upperWidth = 0.0f;
 	splineRendererL->layer++;
 	std::vector<glm::vec3> metal = { glm::vec3(0.5f, 0.5f, 0.5f) };
-	splineRendererL->texture = std::make_shared<Texture>("rail.png", SamplerTypes::NearestNeighbour);
+	splineRendererL->texture = std::make_shared<Texture>(metal, 1, 1, SamplerTypes::NearestNeighbour);
 
 
 	// create lanterns
@@ -105,6 +109,10 @@ void ChickenWings::Update()
 	}
 
 	testNum->SetNumber((uint32_t)gameTime());
+
+	if (isGameOver) {
+		gameOverQuad->position = UberShader::cameraPosition;
+	}
 }
 
 void ChickenWings::RenderObjects()
@@ -147,5 +155,5 @@ void ChickenWings::GenerateNextPointOnSpline()
 }
 
 void ChickenWings::StopGame() {
-	std::cout << "Game Over!" << std::endl;
+	isGameOver = true;
 }
