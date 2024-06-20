@@ -82,6 +82,13 @@ void ChickenWings::ResetGame() {
 	gameOverQuad->position = glm::vec2(-500, 0);
 	isGameOver = false;
 
+	for (size_t i = 0; i < 8; i++)
+	{
+		lanterns[i].quad->position.x = lanternStep * -1.5f + lanternStep * i;
+		lanterns[i].quad->position.y = spline->sampleHight(lanterns[i].quad->position.x) + 1.2f;
+		lanterns[i].light->lightPos = lanterns[i].quad->position;
+	}
+
 	minecart->reset();
 }
 
