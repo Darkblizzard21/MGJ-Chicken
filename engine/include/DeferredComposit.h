@@ -28,36 +28,19 @@ public:
 
 	void CleanUp();
 
-#ifdef DEBUG
 	inline void FlipDebug() { debug = !debug; }
 	inline void EnableDebug() { debug = true; }
 	inline void DisableDebug() { debug = false; }
-#else
-	inline void FlipDebeg() {}
-	inline void EnableDebug() {}
-	inline void DisableDebug() {}
-#endif
 
 	std::shared_ptr<PointLight> CreatePointLight();
 
 private:
 	void UpdateWorkingVars();
 
-	void setInt(const std::string& name, const int& value);
-	void setFloat(const std::string& name, float value) const;
-	void setVec2(const std::string& name, const glm::vec2& value) const;
-	void setVec3(const std::string& name, const glm::vec3& value) const;
-
-	void setFloatV(const std::string& name, const std::vector<float>& value) const;
-	void setVec2V(const std::string& name, const std::vector<glm::vec2>& value) const;
-	void setVec3V(const std::string& name, const std::vector<glm::vec3>& value) const;
-
 	std::unique_ptr<Shader> pass = nullptr;
 
-#ifdef DEBUG
 	bool debug = false;
 	std::unique_ptr<Shader> debugPass = nullptr;
-#endif
 
 	unsigned int VBO = -1;
 	unsigned int VAO = -1;
