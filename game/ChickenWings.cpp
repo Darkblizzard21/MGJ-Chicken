@@ -157,7 +157,7 @@ void ChickenWings::Update()
 		AnimateGameOver();
 		gameOverTime += deltaTime();
 
-		if (glfwGetKey(ChickenWings::game.window, GLFW_KEY_SPACE)) {
+		if (glfwGetKey(ChickenWings::game.window, GLFW_KEY_SPACE) && gameOverTime > 0.75) {
 			ResetGame();
 		}
 	}
