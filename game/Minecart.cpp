@@ -57,7 +57,25 @@ void Minecart::update()
 	b2Vec2 phyisicsPos = body->GetPosition();
 	quad->position = glm::vec2(phyisicsPos.x, phyisicsPos.y);
 	quad->rotation = body->GetAngle();
+
 	
+	for (size_t i = 0; i < chickens.size(); i++)
+	{
+		chickens[i]->update();
+	}
+
+	auto v = body->GetLinearVelocity();
+	velocity = glm::vec2(v.x, v.y);
+
+	collisionExecutedThisFrame = false;
+
+	if (ChickenWings::game.isGameOver)
+		return;
+
+	if (!isAirborn && body->GetLinearVelocity().Length() < baseVelocity) {
+		body->ApplyForceToCenter(b2Vec2(baseAccelerationWhenSlow * ChickenWings::game.deltaTime(), 0), true);
+	}
+
 	// jumping
 	if (!wasSpacePressed && !isAirborn && glfwGetKey(ChickenWings::game.window, GLFW_KEY_SPACE)) {
 		wasSpacePressed = true;
@@ -69,13 +87,9 @@ void Minecart::update()
 
 		isAirborn = true;
 	}
-	
+
 	if (!glfwGetKey(ChickenWings::game.window, GLFW_KEY_SPACE))
 		wasSpacePressed = false;
-
-	if (!isAirborn && body->GetLinearVelocity().Length() < baseVelocity) {
-		body->ApplyForceToCenter(b2Vec2(baseAccelerationWhenSlow * ChickenWings::game.deltaTime(), 0), true);
-	}
 
 	if (glfwGetKey(ChickenWings::game.window, GLFW_KEY_A)) {
 		body->ApplyTorque(rotationalAcceleration, true);
@@ -83,32 +97,31 @@ void Minecart::update()
 	if (glfwGetKey(ChickenWings::game.window, GLFW_KEY_D)) {
 		body->ApplyTorque(-rotationalAcceleration, true);
 	}
-
-	for (size_t i = 0; i < chickens.size(); i++)
-	{
-		chickens[i]->update();
-	}
-
-	auto v = body->GetLinearVelocity();
-	velocity = glm::vec2(v.x, v.y);
-
-	collisionExecutedThisFrame = false;
 }
 
 void Minecart::onCollision(b2Contact* contact) {
+	int chickenCounter = 0;
+	int obstacleCounter = 0;
 	uintptr_t ptrA = contact->GetFixtureA()->GetUserData().pointer;
 	if (ptrA != 0) {
 		std::string tag = *reinterpret_cast<std::string*>(ptrA);
 		if (tag == "Chicken")
-			ChickenWings::game.StopGame();
+			chickenCounter++;
+		else if (tag == "Obstacle")
+			obstacleCounter++;
 	}
 	
 	uintptr_t ptrB = contact->GetFixtureB()->GetUserData().pointer;
 	if (ptrB != 0) {
 		std::string tag = *reinterpret_cast<std::string*>(ptrB);
 		if (tag == "Chicken")
-			ChickenWings::game.StopGame();
+			chickenCounter++;
+		else if (tag == "Obstacle")
+			obstacleCounter++;
 	}
+
+	if (chickenCounter == 1 && obstacleCounter == 0)
+		ChickenWings::game.StopGame();
 	
 	if (collisionExecutedThisFrame)
 		return;
@@ -124,4 +137,20 @@ void Minecart::onCollision(b2Contact* contact) {
 
 	isAirborn = false;
 
+}
+
+void Minecart::reset() {
+	body->SetLinearVelocity(b2Vec2_zero);
+	body->SetAngularVelocity(0);
+	body->SetTransform(b2Vec2(0, 0), 0);
+
+	for (size_t i = 0; i < chickens.size(); i++)
+	{
+		chickens[i]->body->SetLinearVelocity(b2Vec2_zero);
+		chickens[i]->body->SetAngularVelocity(0);
+	}
+
+	chickens[0]->body->SetTransform(body->GetPosition() + b2Vec2(0.35f, 0.35f), 0);
+	chickens[1]->body->SetTransform(body->GetPosition() + b2Vec2(0.05f, 0.32f), 0);
+	chickens[2]->body->SetTransform(body->GetPosition() + b2Vec2(-0.2f, 0.4f), 0);
 }
