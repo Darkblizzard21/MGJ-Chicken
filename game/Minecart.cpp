@@ -89,6 +89,22 @@ void Minecart::update()
 
 	collisionExecutedThisFrame = false;
 
+	if (isAirborn && !hasDoneFlip) {
+		float deltaAngle = body->GetAngle() - lastFrameRotation;
+		rotationDuringJump += deltaAngle;
+		lastFrameRotation = body->GetAngle();
+
+		// +/-1 is threshold reduction to make it easier
+		if (rotationDuringJump > 2 * b2_pi - 1) {
+			ChickenWings::game.ShowBackflip();
+			hasDoneFlip = true;
+		}
+		else if (rotationDuringJump < -2 * b2_pi + 1) {
+			ChickenWings::game.ShowFrontflip();
+			hasDoneFlip = true;
+		}
+	}
+
 	if (ChickenWings::game.isGameOver)
 		return;
 
@@ -100,10 +116,11 @@ void Minecart::update()
 	if (!wasSpacePressed && !isAirborn && glfwGetKey(ChickenWings::game.window, GLFW_KEY_SPACE)) {
 		wasSpacePressed = true;
 
-		// up vector
 		b2Vec2 forceVector = b2Vec2(0, jumpForce);
-
 		body->ApplyLinearImpulseToCenter(forceVector, true);
+
+		rotationDuringJump = 0;
+		lastFrameRotation = body->GetAngle();
 
 		isAirborn = true;
 	}
@@ -164,16 +181,8 @@ void Minecart::onCollision(b2Contact* contact) {
 		return;
 	collisionExecutedThisFrame = true;
 
-	if (isAirborn) {
-		float downForce = 0.0f;
-		for (size_t i = 0; i < chickens.size(); i++)
-		{
-			chickens[i]->body->ApplyLinearImpulseToCenter(b2Vec2(0, -downForce), true);
-		}
-	}
-
+	hasDoneFlip = false;
 	isAirborn = false;
-
 }
 
 void Minecart::reset() {

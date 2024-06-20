@@ -28,7 +28,9 @@ private:
 	bool wasSpacePressed = false;
 	bool collisionExecutedThisFrame = false;
 
-
+	float rotationDuringJump;
+	float lastFrameRotation;
+	bool hasDoneFlip;
 
 	float baseVelocity = 5;
 	float baseAccelerationWhenSlow = 5000;

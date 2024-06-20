@@ -24,6 +24,8 @@ target_sources(game
     Obstacle.cpp
     Chicken.h
     Chicken.cpp
+    Coin.h
+    Coin.cpp
 )
 target_link_libraries(game
     PRIVATE

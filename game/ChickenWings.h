@@ -6,6 +6,7 @@
 #include "SplineRenderer.h"
 #include "ContactListener.h"
 #include "Obstacle.h"
+#include "Coin.h"
 #include <queue>
 
 class ChickenWings : public App {
@@ -17,18 +18,21 @@ public:
 	virtual void Update() override;
 	virtual void RenderObjects() override;
 	void StopGame();
+	void ShowFrontflip();
+	void ShowBackflip();
+	void ScoreCoin();
 
 	std::shared_ptr<Spline> spline;
 
 	bool isGameOver = false;
-	
+
 private:
 	float gameOverTime = 0.f;
 	Spline fadeInAnimSpline = Spline(false);
 	void AnimateGameOver();
 
 	uint32_t Score();
-	uint32_t bounsScore = 0;
+	uint32_t bonusScore = 0;
 	uint32_t meterScore = 0;
 
 	glm::vec2 cameraOffset = { 0, 0 };
@@ -38,6 +42,9 @@ private:
 	std::unique_ptr<Minecart> minecart;
 	std::vector<std::unique_ptr<Obstacle>> obstacles;
 	float timeUntilNextObstacle = 5;
+
+	std::vector<std::unique_ptr<Coin>> coins;
+	float timeUntilNextCoin = 12;
 
 	std::unique_ptr<SplineRenderer> splineRendererB;
 	std::unique_ptr<SplineRenderer> splineRendererL;
@@ -75,7 +82,15 @@ private:
 	int currentLevel = 1;
 
 	std::shared_ptr<Quad> gameOverQuad;
+	std::shared_ptr<Quad> backflipQuad;
+	std::shared_ptr<Quad> frontflipQuad;
+
+	float flipAnimationDuration = 1.0f;
+	float flipAnimationProgress = 0;
+	bool isShowingFrontflip = false;
+	bool isShowingBackflip = false;
 
 	void GenerateNextPointOnSpline();
 	void ResetGame();
+	void UpdateFlipAnimation();
 };

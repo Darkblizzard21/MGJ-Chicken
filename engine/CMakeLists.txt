@@ -5,6 +5,7 @@ target_sources(engine
     PRIVATE
     include/App.h      
     include/DeferredComposit.h   
+    include/MathUtil.h
     include/NumberManager.h   
     include/Quad.h 
     include/Shader.h     

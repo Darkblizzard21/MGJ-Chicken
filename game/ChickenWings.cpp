@@ -13,13 +13,21 @@ ChickenWings::ChickenWings(std::string name)
 void ChickenWings::StartUp() {
 	minecart = std::make_unique<Minecart>();
 
-	contactListener = std::make_unique<ContactListener>(*minecart, obstacles);
+	contactListener = std::make_unique<ContactListener>(*minecart, obstacles, coins);
 	world.SetContactListener(contactListener.get());
 
 	gameOverQuad = uiManager.CreateQuad(std::make_shared < Texture>("GameOver.png"));
 	gameOverQuad->draw = false;
 	gameOverQuad->scale = glm::vec2(10, 3);
 	gameOverQuad->layer = 200;
+
+	backflipQuad = uiManager.CreateQuad(std::make_shared < Texture>("backflip.png"));
+	backflipQuad->draw = false;
+	backflipQuad->layer = 200;
+
+	frontflipQuad = uiManager.CreateQuad(std::make_shared < Texture>("frontflip.png"));
+	frontflipQuad->draw = false;
+	frontflipQuad->layer = 200;
 
 	spline = std::make_shared<Spline>();
 	for (int32_t i = -4; i < 15; i++)
@@ -88,7 +96,7 @@ void ChickenWings::ResetGame() {
 	gameOverQuad->draw = false;
 	isGameOver = false;
 	meterScore = 0;
-	bounsScore = 0;
+	bonusScore = 0;
 
 	for (size_t i = 0; i < 8; i++)
 	{
@@ -129,17 +137,30 @@ void ChickenWings::Update()
 		if (obstacles.size() > 4) {
 			obstacles.erase(obstacles.begin());
 		}
-
-
-
 	}
 
 	for (int i = obstacles.size() - 1; i >= 0; i--)
 	{
 		if (obstacles[i]->isMarkdForDeletion) {
-			std::cout << "Obsacle Deleated" << std::endl;
-
 			obstacles.erase(obstacles.begin() + i);
+		}
+
+	}
+
+	timeUntilNextCoin -= deltaTime();
+	if (timeUntilNextCoin <= 0) {
+		timeUntilNextCoin = 12;
+		coins.push_back(std::make_unique<Coin>(UberShader::cameraPosition.x + 10));
+
+		if (coins.size() > 4) {
+			coins.erase(coins.begin());
+		}
+	}
+
+	for (int i = coins.size() - 1; i >= 0; i--)
+	{
+		if (coins[i]->isMarkdForDeletion) {
+			coins.erase(coins.begin() + i);
 		}
 
 	}
@@ -172,9 +193,11 @@ void ChickenWings::Update()
 		}
 	}
 	else {
-		meterScore = glm::max(meterScore, (uint32_t)(minecart->quad->position.x * 4.f));
+		meterScore = glm::max(meterScore, (uint32_t)(minecart->quad->position.x * 12.f));
 		scoreNumberR->SetNumber(Score());
 	}
+
+	UpdateFlipAnimation();
 
 	minecart->updateAnimation();
 }
@@ -225,6 +248,56 @@ void ChickenWings::StopGame() {
 	isGameOver = true;
 }
 
+void ChickenWings::ScoreCoin() {
+	bonusScore += 300;
+}
+
+void ChickenWings::ShowFrontflip() {
+	frontflipQuad->scale = { 0, 0 };
+	frontflipQuad->draw = true;
+	flipAnimationProgress = 0;
+	isShowingFrontflip = true;
+	bonusScore += 1000;
+}
+
+void ChickenWings::ShowBackflip() {
+	backflipQuad->scale = { 0, 0 };
+	backflipQuad->draw = true;
+	flipAnimationProgress = 0;
+	isShowingBackflip = true;
+	bonusScore += 200;
+}
+
+void ChickenWings::UpdateFlipAnimation() {
+	if (isShowingBackflip) {
+		flipAnimationProgress += deltaTime() / flipAnimationDuration;
+		if (flipAnimationProgress >= 1) {
+			isShowingBackflip = false;
+			backflipQuad->draw = false;
+			return;
+		}
+
+		float scaleFactor = fadeInAnimSpline.sampleHight(flipAnimationProgress);
+
+		backflipQuad->position = { 0, 1.5f };
+		backflipQuad->scale = { 4 * scaleFactor, 4 * scaleFactor };
+	}
+
+	if (isShowingFrontflip) {
+		flipAnimationProgress += deltaTime() / flipAnimationDuration;
+		if (flipAnimationProgress >= 1) {
+			isShowingFrontflip = false;
+			frontflipQuad->draw = false;
+			return;
+		}
+
+		float scaleFactor = fadeInAnimSpline.sampleHight(flipAnimationProgress);
+
+		frontflipQuad->position = { 0, 1.5f };
+		frontflipQuad->scale = { 4 * scaleFactor, 4 * scaleFactor };
+	}
+}
+
 void ChickenWings::AnimateGameOver()
 {
 	gameOverQuad->draw = true;
@@ -256,7 +329,7 @@ void ChickenWings::AnimateGameOver()
 
 uint32_t ChickenWings::Score()
 {
-	return meterScore + bounsScore;
+	return meterScore + bonusScore;
 }
 
 void ChickenWings::SetScorePosAndScale(const glm::vec2& pos, const float& scale, bool centered)
