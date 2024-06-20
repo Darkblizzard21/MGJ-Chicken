@@ -1,5 +1,6 @@
 #include "ChickenWings.h"
 #include <iostream>
+#include <GLFW/glfw3.h>
 
 ChickenWings ChickenWings::game("ChickenWings");
 
@@ -72,6 +73,13 @@ void ChickenWings::StartUp() {
 	testNum->SetPos({ -5,4 });
 }
 
+void ChickenWings::ResetGame() {
+	gameOverQuad->position = glm::vec2(-500, 0);
+	isGameOver = false;
+
+	minecart->reset();
+}
+
 void ChickenWings::Update()
 {
 	minecart->update();
@@ -127,6 +135,9 @@ void ChickenWings::Update()
 
 	if (isGameOver) {
 		gameOverQuad->position = UberShader::cameraPosition;
+		if (glfwGetKey(ChickenWings::game.window, GLFW_KEY_SPACE)) {
+			ResetGame();
+		}
 	}
 }
 

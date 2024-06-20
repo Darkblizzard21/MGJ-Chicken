@@ -16,6 +16,8 @@ public:
 	b2Body* body = nullptr;
 
 	float GetVelocityX() const { return velocity.x; }
+	void reset();
+
 private:
 	glm::vec2 velocity;
 	bool wasSpacePressed = false;
