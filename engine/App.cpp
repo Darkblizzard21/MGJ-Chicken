@@ -88,7 +88,8 @@ App::App(std::string title, int width, int height) : title_(title), width_(width
 	deltaTime_ = 1 / targetFrameRate;
 
 	quadManager.Initialize();
-	
+	uiManager.Initialize();
+
 	backgroundQuad = quadManager.CreateQuad();
 	backgroundQuad->layer = 0;
 	backgroundQuad->scale = glm::vec2(17, 10);
@@ -168,6 +169,11 @@ void App::run()
 
 		compositPass_.Execute(gAlbedo, gNormal, gLayer);
 
+		// 3. UI pass
+		Timer renderTQUI("Loop::Render::UI");
+		uiManager.RenderQuads();
+		renderTQUI.finish();
+
 		// finish
 		Timer renderTS("Loop::Render::glfwSwapBuffers");
 		glfwSwapBuffers(window);
@@ -195,6 +201,7 @@ void App::run()
 			renderTO.print = false;
 			renderTQ.print = false;
 			renderTS.print = false;
+			renderTQUI.print = false;
 		}
 		gameTime_ = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - gameStart_).count() * 0.001f;
 		lastFrame_ = currentTime;

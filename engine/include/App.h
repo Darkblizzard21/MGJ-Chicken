@@ -36,6 +36,7 @@ public:
 	b2World world;
 
 	QuadManager quadManager;
+	QuadManager uiManager;
 
 protected:
 	DeferredCompositPass compositPass_;
