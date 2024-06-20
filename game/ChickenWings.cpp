@@ -22,14 +22,12 @@ void ChickenWings::StartUp() {
 	gameOverQuad->layer = 200;
 
 	backflipQuad = uiManager.CreateQuad(std::make_shared < Texture>("backflip.png"));
-	gameOverQuad->draw = false;
-	gameOverQuad->scale = glm::vec2(8, 8);
-	gameOverQuad->layer = 200;
+	backflipQuad->draw = false;
+	backflipQuad->layer = 200;
 
 	frontflipQuad = uiManager.CreateQuad(std::make_shared < Texture>("frontflip.png"));
-	gameOverQuad->draw = false;
-	gameOverQuad->scale = glm::vec2(8, 8);
-	gameOverQuad->layer = 200;
+	frontflipQuad->draw = false;
+	frontflipQuad->layer = 200;
 
 	spline = std::make_shared<Spline>();
 	for (int32_t i = -4; i < 15; i++)
@@ -238,7 +236,7 @@ void ChickenWings::ShowFrontflip() {
 	frontflipQuad->draw = true;
 	flipAnimationProgress = 0;
 	isShowingFrontflip = true;
-	bonusScore += 500;
+	bonusScore += 1000;
 }
 
 void ChickenWings::ShowBackflip() {
@@ -246,7 +244,7 @@ void ChickenWings::ShowBackflip() {
 	backflipQuad->draw = true;
 	flipAnimationProgress = 0;
 	isShowingBackflip = true;
-	bonusScore += 500;
+	bonusScore += 200;
 }
 
 void ChickenWings::UpdateFlipAnimation() {
@@ -260,8 +258,8 @@ void ChickenWings::UpdateFlipAnimation() {
 
 		float scaleFactor = fadeInAnimSpline.sampleHight(flipAnimationProgress);
 
-		backflipQuad->position = { 0, 0 };
-		backflipQuad->scale = { 5 * scaleFactor, 5 * scaleFactor };
+		backflipQuad->position = { 0, 1.5f };
+		backflipQuad->scale = { 4 * scaleFactor, 4 * scaleFactor };
 	}
 
 	if (isShowingFrontflip) {
@@ -274,8 +272,8 @@ void ChickenWings::UpdateFlipAnimation() {
 
 		float scaleFactor = fadeInAnimSpline.sampleHight(flipAnimationProgress);
 
-		frontflipQuad->position = { 0, 0 };
-		frontflipQuad->scale = { 5 * scaleFactor, 5 * scaleFactor };
+		frontflipQuad->position = { 0, 1.5f };
+		frontflipQuad->scale = { 4 * scaleFactor, 4 * scaleFactor };
 	}
 }
 

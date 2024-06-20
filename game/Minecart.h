@@ -25,6 +25,7 @@ private:
 
 	float rotationDuringJump;
 	float lastFrameRotation;
+	bool hasDoneFlip;
 
 	float baseVelocity = 5;
 	float baseAccelerationWhenSlow = 5000;

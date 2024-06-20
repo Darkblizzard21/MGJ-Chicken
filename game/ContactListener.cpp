@@ -21,6 +21,7 @@ void ContactListener::BeginContact(b2Contact* contact) {
 			b2Vec2 forceVector = b2Vec2(0, 1);
 			minecart.body->ApplyLinearImpulseToCenter(forceVector, true);
 			minecart.body->ApplyAngularImpulse(-1, true);
+			minecart.isAirborn = true;
 		}
 
 	}
@@ -37,7 +38,7 @@ void ContactListener::BeginContact(b2Contact* contact) {
 			b2Vec2 forceVector = b2Vec2(0, 3);
 			minecart.body->ApplyLinearImpulseToCenter(forceVector, true);
 			minecart.body->ApplyAngularImpulse(4, true);
-
+			minecart.isAirborn = true;
 		}
 
 	}

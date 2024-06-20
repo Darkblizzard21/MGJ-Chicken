@@ -70,7 +70,7 @@ void Minecart::update()
 
 	collisionExecutedThisFrame = false;
 
-	if (isAirborn) {
+	if (isAirborn && !hasDoneFlip) {
 		float deltaAngle = body->GetAngle() - lastFrameRotation;
 		rotationDuringJump += deltaAngle;
 		lastFrameRotation = body->GetAngle();
@@ -78,9 +78,11 @@ void Minecart::update()
 		// +/-1 is threshold reduction to make it easier
 		if (rotationDuringJump > 2 * b2_pi - 1) {
 			ChickenWings::game.ShowBackflip();
+			hasDoneFlip = true;
 		}
 		else if (rotationDuringJump < -2 * b2_pi + 1) {
 			ChickenWings::game.ShowFrontflip();
+			hasDoneFlip = true;
 		}
 	}
 
@@ -143,8 +145,8 @@ void Minecart::onCollision(b2Contact* contact) {
 		return;
 	collisionExecutedThisFrame = true;
 
+	hasDoneFlip = false;
 	isAirborn = false;
-
 }
 
 void Minecart::reset() {
