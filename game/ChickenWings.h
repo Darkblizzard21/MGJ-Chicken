@@ -22,6 +22,7 @@ private:
 	std::unique_ptr<SplineRenderer> splineRendererL;
 
 	std::shared_ptr<Quad> quad;
+	std::shared_ptr<Number> testNum;
 
 	struct Lantern
 	{

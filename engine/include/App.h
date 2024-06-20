@@ -4,6 +4,7 @@
 #include <chrono>
 #include <box2d/box2d.h>
 #include <DeferredComposit.h>
+#include <NumberManager.h>
 
 struct GLFWwindow;
 
@@ -37,7 +38,7 @@ public:
 
 	QuadManager quadManager;
 	QuadManager uiManager;
-
+	NumberManager numberManager;
 protected:
 	DeferredCompositPass compositPass_;
 private:

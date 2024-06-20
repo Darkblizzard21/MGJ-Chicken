@@ -89,6 +89,7 @@ App::App(std::string title, int width, int height) : title_(title), width_(width
 
 	quadManager.Initialize();
 	uiManager.Initialize();
+	numberManager.Initialize(&uiManager);
 
 	backgroundQuad = quadManager.CreateQuad();
 	backgroundQuad->layer = 0;
@@ -137,7 +138,7 @@ void App::run()
 		Timer updateT("Loop::Update");
 		Update();
 		updateT.finish();
-
+		numberManager.Update();
 
 		Timer renderT("Loop::Render");
 		backgroundQuad->position = UberShader::cameraPosition;
@@ -170,9 +171,12 @@ void App::run()
 		compositPass_.Execute(gAlbedo, gNormal, gLayer);
 
 		// 3. UI pass
+		const auto cameraPos = UberShader::cameraPosition;
+		UberShader::cameraPosition = glm::vec2(0, 0);
 		Timer renderTQUI("Loop::Render::UI");
 		uiManager.RenderQuads();
 		renderTQUI.finish();
+		UberShader::cameraPosition = cameraPos;
 
 		// finish
 		Timer renderTS("Loop::Render::glfwSwapBuffers");

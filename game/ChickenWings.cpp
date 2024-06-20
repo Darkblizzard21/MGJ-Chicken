@@ -62,6 +62,9 @@ void ChickenWings::StartUp() {
 		lanterns[i].light->lightColor = colors[i];
 		lanterns[i].light->lightRadius = 3;
 	}
+
+	testNum = numberManager.CreateNumber();
+	testNum->SetPos({ -5,4 });
 }
 
 void ChickenWings::Update()
@@ -90,6 +93,8 @@ void ChickenWings::Update()
 		lanterns[lastLantern].light->lightPos = lanterns[lastLantern].quad->position;
 		lastLantern = (lastLantern + 1) % 8;
 	}
+
+	testNum->SetNumber((uint32_t)gameTime());
 }
 
 void ChickenWings::RenderObjects()
