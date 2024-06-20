@@ -17,11 +17,12 @@ public:
 private:
 	float yVelocity = 0;
 	bool wasSpacePressed = false;
+	bool collisionExecutedThisFrame = false;
 
 	b2Body* body = nullptr;
 
 	float baseVelocity = 5;
-	float baseAccelerationWhenSlow = 100;
+	float baseAccelerationWhenSlow = 500;
 	float jumpForce = 8;
 	float rotationalAcceleration = 1;
 

@@ -61,11 +61,9 @@ void Minecart::update()
 		wasSpacePressed = true;
 
 		// up vector
-		//b2Vec2 forceVector(-glm::sin(quad->rotation), glm::cos(quad->rotation));
 		b2Vec2 forceVector = b2Vec2(0, jumpForce);
 
 		body->ApplyLinearImpulseToCenter(forceVector, true);
-		//body->ApplyAngularImpulse(0.2f, true);
 
 		isAirborn = true;
 	}
@@ -88,8 +86,23 @@ void Minecart::update()
 	{
 		chickens[i]->update();
 	}
+
+	collisionExecutedThisFrame = false;
 }
 
 void Minecart::onCollision() {
+	if (collisionExecutedThisFrame)
+		return;
+	collisionExecutedThisFrame = true;
+
+	if (isAirborn) {
+		float downForce = 1.5f;
+		for (size_t i = 0; i < chickens.size(); i++)
+		{
+			//chickens[i]->body->ApplyLinearImpulseToCenter(b2Vec2(0, -downForce), true);
+		}
+	}
+
 	isAirborn = false;
+
 }

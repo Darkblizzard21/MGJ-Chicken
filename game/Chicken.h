@@ -8,10 +8,9 @@ public:
 	Chicken(b2Body* cartBody);
 	void update();
 
+	b2Body* body;
 private:
 	std::shared_ptr<Quad> quad;
 	
-	b2Body* body;
-	b2DistanceJoint* distanceJoint;
-	b2RevoluteJoint* revoluteJoint;
+	b2WeldJoint* weldJoint;
 };
