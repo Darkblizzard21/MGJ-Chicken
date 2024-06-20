@@ -7,7 +7,7 @@
 class Spline {
 
 public:
-	Spline();
+	Spline(bool withCollision = true);
 
 	float sampleHight(float x, int n);
 	float sampleHight(float x);
@@ -26,6 +26,7 @@ public:
 	std::vector<glm::vec2> splinePoints;
 
 private:
+	const bool withCollision_;
 	b2Body* collider = nullptr;
 	std::vector<b2Fixture*> fixtures;
 	const int collisionSamplesPerSegment = 10;

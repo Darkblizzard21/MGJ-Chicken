@@ -24,7 +24,7 @@ public:
 	
 private:
 	float gameOverTime = 0.f;
-	Spline fadeInAnimSpline;
+	Spline fadeInAnimSpline = Spline(false);
 	void AnimateGameOver();
 
 	uint32_t Score();
