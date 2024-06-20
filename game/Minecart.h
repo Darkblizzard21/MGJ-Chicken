@@ -14,8 +14,9 @@ public:
 
 	bool isAirborn = true;
 
+	float GetVelocityX() const { return velocity.x; }
 private:
-	float yVelocity = 0;
+	glm::vec2 velocity;
 	bool wasSpacePressed = false;
 	bool collisionExecutedThisFrame = false;
 

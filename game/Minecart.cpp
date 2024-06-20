@@ -89,6 +89,9 @@ void Minecart::update()
 		chickens[i]->update();
 	}
 
+	auto v = body->GetLinearVelocity();
+	velocity = glm::vec2(v.x, v.y);
+
 	collisionExecutedThisFrame = false;
 }
 

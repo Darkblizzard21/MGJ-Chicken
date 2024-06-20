@@ -18,7 +18,7 @@ void ChickenWings::StartUp() {
 	spline = std::make_shared<Spline>();
 	for (int32_t i = -4; i < 15; i++)
 	{
-		spline->addNextPoint({ i* splineLeanth,  (splineHightVariance * (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))) - slopehight});
+		spline->addNextPoint({ i * splineLeanth,  (splineHightVariance * (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))) - slopehight });
 		slopehight += slopehightIncrement;
 		splineRendererB = std::make_unique<SplineRenderer>(spline);
 		splineRendererB->ybaseLine = -10.8f - slopehight;
@@ -62,14 +62,20 @@ void ChickenWings::StartUp() {
 		lanterns[i].light->lightColor = colors[i];
 		lanterns[i].light->lightRadius = 3;
 	}
+
+	testNum = numberManager.CreateNumber();
+	testNum->SetPos({ -5,4 });
 }
 
 void ChickenWings::Update()
 {
 	minecart->update();
-	//UberShader::cameraPosition.x += deltaTime();
-	UberShader::cameraPosition.x = minecart->quad->position.x;
-	UberShader::cameraPosition.y = minecart->quad->position.y;
+	float lerp = glm::min(1.f, minecart->GetVelocityX() / maxOffestVelo);
+	float targetOffsetX = maxOffset * lerp * lerp;
+	float targetOffsetY = spline->sampleHight(UberShader::cameraPosition.x + 8) - UberShader::cameraPosition.y + 4.5f;
+	targetOffsetY = glm::clamp(targetOffsetY, -6.f, 0.f);
+	cameraOffset = glm::mix(cameraOffset, { targetOffsetX, targetOffsetY }, std::min(deltaTime() * 2, 1.f));
+	UberShader::cameraPosition = minecart->quad->position + cameraOffset;
 
 	glm::vec2 v = spline->splinePoints[spline->splinePoints.size() - 1];
 	float mincartDistanceToLastSplinePoint = glm::distance(v, minecart->quad->position);
@@ -97,6 +103,8 @@ void ChickenWings::Update()
 		lanterns[lastLantern].light->lightPos = lanterns[lastLantern].quad->position;
 		lastLantern = (lastLantern + 1) % 8;
 	}
+
+	testNum->SetNumber((uint32_t)gameTime());
 }
 
 void ChickenWings::RenderObjects()
@@ -109,7 +117,7 @@ void ChickenWings::GenerateNextPointOnSpline()
 {
 	glm::vec2 v = spline->splinePoints[spline->splinePoints.size() - 1];
 
-	spline->addNextPoint({v.x + SplineXStep, (splineHightVariance * (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))) - slopehight });
+	spline->addNextPoint({ v.x + SplineXStep, (splineHightVariance * (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))) - slopehight });
 
 	//spline->addNextPoint({ splineSegmentCounter * splineLeanth,  (splineHightVariance * (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))) - slopehight });
 	slopehight += slopehightIncrement;
