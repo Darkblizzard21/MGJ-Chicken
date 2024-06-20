@@ -88,7 +88,7 @@ void ChickenWings::ResetGame() {
 		lanterns[i].quad->position.y = spline->sampleHight(lanterns[i].quad->position.x) + 1.2f;
 		lanterns[i].light->lightPos = lanterns[i].quad->position;
 	}
-
+	lastLantern = 0;
 	minecart->reset();
 }
 
