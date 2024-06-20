@@ -79,8 +79,6 @@ void DeferredCompositPass::Initalize()
 
 	pass = std::make_unique<Shader>(vertexShaderSource, fragmentShaderSource);
 
-
-#ifdef DEBUG
 	const std::string debugfragmentShaderSource = fragmentUniforms +
 		"void main()\n"
 		"{\n"
@@ -105,7 +103,6 @@ void DeferredCompositPass::Initalize()
 		"	}\n"
 		"}\n\0";
 	debugPass = std::make_unique<Shader>(vertexShaderSource, debugfragmentShaderSource);
-#endif
 
 	// set up mesh
 	std::vector<glm::vec4> vertices = {
@@ -153,35 +150,30 @@ void DeferredCompositPass::Initalize()
 void DeferredCompositPass::Execute(const int& colorTex, const int& normalTex, const int& posTex)
 {
 	assert(pass != nullptr);
-
-	pass->use();
-#ifdef DEBUG
-	if (debug) {
-		debugPass->use();
-	}
-#endif
+	Shader* ptr = debug ? debugPass.get() : pass.get();
+	ptr->use();
 
 	glActiveTexture(GL_TEXTURE0);
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, colorTex);
-	setInt("ColorTex", 0);
+	ptr->setInt("ColorTex", 0);
 
 	glActiveTexture(GL_TEXTURE1);
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, normalTex);
-	setInt("NormalTex", 1);
+	ptr->setInt("NormalTex", 1);
 
 	glActiveTexture(GL_TEXTURE2);
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, posTex);
-	setInt("LayerTex", 2);
+	ptr->setInt("LayerTex", 2);
 
 
 	UpdateWorkingVars();
-	setInt("lightCount", pointLights.size());
-	setVec3V("lightColor", lightColorV);
-	setVec2V("lightPos", lightPosV);
-	setFloatV("lightRadius", lightRadiusV);
+	ptr->setInt("lightCount", pointLights.size());
+	ptr->setVec3V("lightColor", lightColorV);
+	ptr->setVec2V("lightPos", lightPosV);
+	ptr->setFloatV("lightRadius", lightRadiusV);
 
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -249,103 +241,4 @@ void DeferredCompositPass::UpdateWorkingVars()
 		offset++;
 	}
 	toDelete.clear();
-}
-
-void DeferredCompositPass::setInt(const std::string& name, const int& value) {
-
-
-#ifdef DEBUG
-	if (debug) {
-		debugPass->setInt(name, value);
-	}
-	else {
-#endif 
-		pass->setInt(name, value);
-#ifdef DEBUG
-	}
-#endif
-}
-
-void DeferredCompositPass::setFloat(const std::string& name, float value) const
-{
-#ifdef DEBUG
-	if (debug) {
-		debugPass->setFloat(name, value);
-	}
-	else {
-#endif 
-		pass->setFloat(name, value);
-#ifdef DEBUG
-	}
-#endif
-}
-
-void DeferredCompositPass::setVec2(const std::string& name, const glm::vec2& value) const
-{
-#ifdef DEBUG
-	if (debug) {
-		debugPass->setVec2(name, value);
-	}
-	else {
-#endif 
-		pass->setVec2(name, value);
-#ifdef DEBUG
-	}
-#endif
-}
-
-void DeferredCompositPass::setVec3(const std::string& name, const glm::vec3& value) const
-{
-#ifdef DEBUG
-	if (debug) {
-		debugPass->setVec3(name, value);
-	}
-	else {
-#endif 
-		pass->setVec3(name, value);
-#ifdef DEBUG
-	}
-#endif
-}
-
-void DeferredCompositPass::setFloatV(const std::string& name, const std::vector<float>& value) const
-{
-#ifdef DEBUG
-	if (debug) {
-		debugPass->setFloatV(name, value);
-	}
-	else {
-#endif 
-		pass->setFloatV(name, value);
-#ifdef DEBUG
-	}
-#endif
-}
-
-void DeferredCompositPass::setVec2V(const std::string& name, const std::vector<glm::vec2>& value) const
-{
-#ifdef DEBUG
-	if (debug) {
-		debugPass->setVec2V(name, value);
-	}
-	else {
-#endif 
-		pass->setVec2V(name, value);
-#ifdef DEBUG
-	}
-#endif
-}
-
-void DeferredCompositPass::setVec3V(const std::string& name, const std::vector<glm::vec3>& value) const
-{
-#ifdef DEBUG
-	if (debug) {
-		debugPass->setVec3V(name, value);
-	}
-	else {
-#endif 
-		pass->setVec3V(name, value);
-#ifdef DEBUG
-	}
-#endif
 }

@@ -72,79 +72,97 @@ void Shader::use()
 void Shader::setBool(const std::string& name, bool value) const
 {
 	const auto location = glGetUniformLocation(ID, name.c_str());
+#ifdef DEBUG
 	if (location == -1) {
 		std::cout << "waring: There is no uniform named " << name << " on shader " << location << "." << std::endl;
 	}
+#endif
 	glUniform1i(location, (int)value);
 }
 
 void Shader::setInt(const std::string& name, int value) const
 {
 	const auto location = glGetUniformLocation(ID, name.c_str());
+#ifdef DEBUG
 	if (location == -1) {
 		std::cout << "waring: There is no uniform named " << name << " on shader " << location << "." << std::endl;
 	}
+#endif
 	glUniform1i(location, value);
 }
 
 void Shader::setFloat(const std::string& name, float value) const
 {
 	const auto location = glGetUniformLocation(ID, name.c_str());
+#ifdef DEBUG
 	if (location == -1) {
 		std::cout << "waring: There is no uniform named " << name << " on shader " << location << "." << std::endl;
 	}
+#endif
 	glUniform1f(location, value);
 }
 
 void Shader::setVec2(const std::string& name, const glm::vec2& value) const {
     const auto location = glGetUniformLocation(ID, name.c_str());
+#ifdef DEBUG
     if (location == -1) {
         std::cout << "waring: There is no uniform named " << name << " on shader " << location << "." << std::endl;
     }
+#endif
     glUniform2fv(location, 1, glm::value_ptr(value));
 }
 
 void Shader::setVec3(const std::string& name, const glm::vec3& value) const {
 	const auto location = glGetUniformLocation(ID, name.c_str());
+#ifdef DEBUG
 	if (location == -1) {
 		std::cout << "waring: There is no uniform named " << name << " on shader " << location << "." << std::endl;
 	}
+#endif
 	glUniform3fv(location, 1, glm::value_ptr(value));
 }
 
 void Shader::setMat4x4(const std::string& name, const glm::mat4x4& value) const
 {
 	const auto location = glGetUniformLocation(ID, name.c_str());
+#ifdef DEBUG
 	if (location == -1) {
 		std::cout << "waring: There is no uniform named " << name << " on shader " << location << "." << std::endl;
 	}
+#endif
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 }
 
 void Shader::setFloatV(const std::string& name, const std::vector<float>& value) const
 {
 	const auto location = glGetUniformLocation(ID, name.c_str());
+#ifdef DEBUG
 	if (location == -1) {
 		std::cout << "waring: There is no uniform named " << name << " on shader " << location << "." << std::endl;
 	}
+#endif
 	glUniform1fv(location, value.size(), reinterpret_cast<const GLfloat*>(value.data()));
 }
 
 void Shader::setVec2V(const std::string& name, const std::vector<glm::vec2>& value) const
 {
 	const auto location = glGetUniformLocation(ID, name.c_str());
+#ifdef DEBUG
 	if (location == -1) {
 		std::cout << "waring: There is no uniform named " << name << " on shader " << location << "." << std::endl;
 	}
+#endif
 	glUniform2fv(location, value.size(), reinterpret_cast<const GLfloat*>(value.data()));
 }
 
 void Shader::setVec3V(const std::string& name, const std::vector<glm::vec3>& value) const
 {
 	const auto location = glGetUniformLocation(ID, name.c_str());
+#ifdef DEBUG
 	if (location == -1) {
 		std::cout << "waring: There is no uniform named " << name << " on shader " << location << "." << std::endl;
 	}
+#endif
 	glUniform3fv(location, value.size(), reinterpret_cast<const GLfloat*>(value.data()));
 }
 
