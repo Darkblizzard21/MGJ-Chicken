@@ -28,6 +28,7 @@ private:
 	std::unique_ptr<SplineRenderer> splineRendererB;
 	std::unique_ptr<SplineRenderer> splineRendererL;
 
+	std::shared_ptr<Number> testNum;
 
 	struct Lantern
 	{
