@@ -4,5 +4,5 @@ ContactListener::ContactListener(Minecart& minecart) : minecart(minecart) {
 }
 
 void ContactListener::BeginContact(b2Contact* contact) {
-	minecart.isAirborn = false;
+	minecart.onCollision();
 }

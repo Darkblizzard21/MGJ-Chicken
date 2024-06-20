@@ -18,7 +18,7 @@ Minecart::Minecart() {
 	boxFixture.friction = 2.5f;
 
 
-	float density = 3.0f;
+	float density = 5.0f;
 	float friction = 0.1f;
 
 	b2CircleShape circleShape1;
@@ -62,7 +62,7 @@ void Minecart::update()
 
 		// up vector
 		//b2Vec2 forceVector(-glm::sin(quad->rotation), glm::cos(quad->rotation));
-		b2Vec2 forceVector = b2Vec2(10, jumpForce);
+		b2Vec2 forceVector = b2Vec2(0, jumpForce);
 
 		body->ApplyLinearImpulseToCenter(forceVector, true);
 		//body->ApplyAngularImpulse(0.2f, true);
@@ -88,4 +88,8 @@ void Minecart::update()
 	{
 		chickens[i]->update();
 	}
+}
+
+void Minecart::onCollision() {
+	isAirborn = false;
 }

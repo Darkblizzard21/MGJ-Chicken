@@ -9,6 +9,7 @@ public:
 
 	Minecart();
 	void update();
+	void onCollision();
 	std::shared_ptr<Quad> quad;
 
 	bool isAirborn = true;

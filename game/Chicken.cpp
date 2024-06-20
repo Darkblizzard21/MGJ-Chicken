@@ -13,19 +13,19 @@ Chicken::Chicken(b2Body* cartBody) {
 	body = ChickenWings::game.world.CreateBody(&bodyDef);
 
 	b2PolygonShape collider;
-	collider.SetAsBox(0.25f, 0.25f);
-	body->CreateFixture(&collider, 1.0f);
+	collider.SetAsBox(0.2f, 0.2f);
+	body->CreateFixture(&collider, 0.3f);
 
 	// distance joint
-	//b2DistanceJointDef distanceJointDef;
-	//distanceJointDef.Initialize(cartBody, body, cartBody->GetPosition(), body-//>GetPosition());
-	//distanceJointDef.collideConnected = false;
-	//
-	//float frequencyHz = 4.0f;
-	//float dampingRatio = 0.5f;
-	//b2LinearStiffness(distanceJointDef.stiffness, distanceJointDef.damping, frequencyHz, dampingRatio, distanceJointDef.bodyA, distanceJointDef.bodyB);
+	b2DistanceJointDef distanceJointDef;
+	distanceJointDef.Initialize(cartBody, body, cartBody->GetPosition(), body->GetPosition());
+	distanceJointDef.collideConnected = false;
+	
+	float frequencyHz = 2.0f;
+	float dampingRatio = 0.3f;
+	b2LinearStiffness(distanceJointDef.stiffness, distanceJointDef.damping,frequencyHz, dampingRatio, distanceJointDef.bodyA, distanceJointDef.bodyB);
 
-	//distanceJoint = (b2DistanceJoint*)ChickenWings::game.world.CreateJoint(&distanceJointDef);
+	distanceJoint = (b2DistanceJoint*)ChickenWings::game.world.CreateJoint(&distanceJointDef);
 
 	// revolute joint
 	b2RevoluteJointDef revoluteJointDef;
@@ -47,6 +47,6 @@ void Chicken::update() {
 
 	// rotate upwards
 	float angleError = revoluteJoint->GetJointAngle();
-	float gain = 1.0f;
+	float gain = 1.5f;
 	revoluteJoint->SetMotorSpeed(-gain * angleError);
 }
