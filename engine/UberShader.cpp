@@ -183,6 +183,8 @@ void UberShader::DrawElements(const UberData& settings, const MeshBuffers& buffe
 void UberShader::DrawElements(const UberData& settings, const unsigned int& VAO, const unsigned int& triangles)
 {
 	assert(uber != nullptr);
+	if (!settings.draw) return;
+
 	Texture* colorTex = settings.colorTexture != nullptr ? settings.colorTexture.get() : fallbackTexture.get();
 	Texture* normalTex = settings.normalTexture != nullptr ? settings.normalTexture.get() : fallbackNormals.get();
 	uber->use();

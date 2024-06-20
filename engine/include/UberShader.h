@@ -19,6 +19,8 @@ struct MeshBuffers
 
 struct UberData
 {
+	bool draw = true;
+
 	glm::vec2 position = { 0, 0 };
 	glm::vec2 scale = { 1,1 };
 	float rotation = 0;

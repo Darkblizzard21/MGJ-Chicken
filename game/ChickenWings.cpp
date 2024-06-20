@@ -16,8 +16,8 @@ void ChickenWings::StartUp() {
 	contactListener = std::make_unique<ContactListener>(*minecart,obstacles);
 	world.SetContactListener(contactListener.get());
 
-	gameOverQuad = quadManager.CreateQuad(std::make_shared < Texture>("GameOver.png"));
-	gameOverQuad->position = glm::vec2(-500, 0);
+	gameOverQuad = uiManager.CreateQuad(std::make_shared < Texture>("GameOver.png"));
+	gameOverQuad->draw = false;
 	gameOverQuad->scale = glm::vec2(10, 3);
 	gameOverQuad->layer = 200;
 
@@ -79,8 +79,10 @@ void ChickenWings::StartUp() {
 }
 
 void ChickenWings::ResetGame() {
-	gameOverQuad->position = glm::vec2(-500, 0);
+	gameOverQuad->draw = false;
 	isGameOver = false;
+	meterScore = 0;
+	bounsScore = 0;
 
 	for (size_t i = 0; i < 8; i++)
 	{
@@ -144,14 +146,16 @@ void ChickenWings::Update()
 	}
 
 
-	meterScore = glm::max(meterScore, (uint32_t) (minecart->quad->position.x * 4.f));
-	scoreNumberR->SetNumber(Score());
 
 	if (isGameOver) {
-		gameOverQuad->position = UberShader::cameraPosition;
+		gameOverQuad->draw = true;
 		if (glfwGetKey(ChickenWings::game.window, GLFW_KEY_SPACE)) {
 			ResetGame();
 		}
+	}
+	else {
+		meterScore = glm::max(meterScore, (uint32_t)(minecart->quad->position.x * 4.f));
+		scoreNumberR->SetNumber(Score());
 	}
 }
 
