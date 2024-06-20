@@ -69,7 +69,7 @@ void ChickenWings::StartUp() {
 		lanterns[i].quad->position.x = lanternStep * -1.5f + lanternStep * i;
 		lanterns[i].quad->position.y = spline->sampleHight(lanterns[i].quad->position.x) + 1.2f;
 		lanterns[i].quad->scale = glm::vec2(0.5f);
-		lanterns[i].quad->layer = 105;
+		lanterns[i].quad->layer = 5;
 
 
 		lanterns[i].light = compositPass_.CreatePointLight();
@@ -90,6 +90,9 @@ void ChickenWings::StartUp() {
 	fadeInAnimSpline.addNextPoint({ 1.f, fadeInEndScale });
 	fadeInAnimSpline.addNextPoint({ 1.1, fadeInEndScale });
 	fadeInAnimSpline.addNextPoint({ 1.2, fadeInEndScale });
+
+	obstacles.push_back(std::make_unique<Obstacle>(-10));
+	coins.push_back(std::make_unique<Coin>(-10));
 }
 
 void ChickenWings::ResetGame() {
@@ -145,6 +148,11 @@ void ChickenWings::Update()
 			obstacles.erase(obstacles.begin() + i);
 		}
 
+	}
+
+	for (int i = coins.size() - 1; i >= 0; i--)
+	{
+		coins[i]->Update();
 	}
 
 	timeUntilNextCoin -= deltaTime();

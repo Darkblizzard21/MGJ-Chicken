@@ -14,6 +14,7 @@ public:
 private:
 	static std::shared_ptr<Texture> colorTex;
 	static std::shared_ptr<Texture> normalTex;
+	float coinTime = 0.f;
 	std::shared_ptr<Quad> quad;
 	b2Body* body;
 	std::string* tag = new std::string("Coin");

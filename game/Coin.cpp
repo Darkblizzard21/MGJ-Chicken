@@ -1,5 +1,6 @@
 #include "Coin.h"
 #include "ChickenWings.h"
+#include <iostream>
 
 std::shared_ptr<Texture> Coin::colorTex = nullptr;
 std::shared_ptr<Texture> Coin::normalTex = nullptr;
@@ -7,13 +8,14 @@ std::shared_ptr<Texture> Coin::normalTex = nullptr;
 Coin::Coin(float xPos) {
 	float yPos = ChickenWings::game.spline->sampleHight(xPos);
 
-	if (colorTex == nullptr) colorTex = std::make_shared<Texture>("Coin1.png");
-	if (normalTex == nullptr) normalTex = std::make_shared<Texture>("Coin1N.png");
+	if (colorTex == nullptr) colorTex = std::make_shared<Texture>("coins.png");
+	if (normalTex == nullptr) normalTex = std::make_shared<Texture>("coinsN.png");
 
 	quad = ChickenWings::game.quadManager.CreateQuad(colorTex, normalTex);
 	quad->position = glm::vec2(xPos, yPos + 1);
 	quad->layer = 150;
 	quad->scale = {0.8f, 0.8f};
+	quad->uvGridSize = 3;
 
 	b2BodyDef bodyDef;
 	bodyDef.position.Set(xPos, yPos + 0.5f);
@@ -32,7 +34,8 @@ Coin::Coin(float xPos) {
 
 void Coin::Update()
 {
-
+	coinTime += ChickenWings::game.deltaTime();
+	quad->uvTile = ((int)(coinTime * 5)) % 5;
 }
 
 Coin::~Coin() {
