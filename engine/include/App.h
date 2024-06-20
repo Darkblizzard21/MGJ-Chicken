@@ -6,6 +6,11 @@
 #include <DeferredComposit.h>
 #include <NumberManager.h>
 
+#include <soloud.h>
+#include <soloud_wav.h>
+#undef max
+#undef min
+
 struct GLFWwindow;
 
 class App
@@ -35,6 +40,8 @@ public:
 
 	GLFWwindow* window;
 	b2World world;
+	SoLoud::Soloud soloud; // Engine core
+	SoLoud::Wav testSample;
 
 	QuadManager quadManager;
 	QuadManager uiManager;

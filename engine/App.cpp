@@ -8,6 +8,28 @@
 #include <box2d/b2_common.h>
 #include <Timer.h>
 
+// remove
+#include <filesystem>
+namespace {
+	
+	std::string resolvePath(const std::string& texture)
+	{
+		auto basePath = std::filesystem::absolute(".");
+
+		std::cout << "Loading rescource: " << texture << " from basepath: " << basePath << std::endl;
+
+		std::vector<std::string> locations = { "", "assets", "../assets", "../../assets", "../../../assets", "../../../../assets" };
+		for (const auto& loc : locations) {
+			auto currentPath = std::filesystem::absolute(basePath / loc / texture);
+			if (std::filesystem::exists(currentPath)) {
+				return currentPath.string();
+			}
+		}
+		std::cout << "Could not resolve path for rescource: " << texture << " from basepath: " << basePath << std::endl;
+		throw "";
+	}
+}
+
 App::App(std::string title, int width, int height) : title_(title), width_(width), height_(height), world(b2Vec2(0, -10.0f))
 {
 	// setup glfw
@@ -88,6 +110,10 @@ App::App(std::string title, int width, int height) : title_(title), width_(width
 	// setup game systems
 	gameTime_ = 0;
 	deltaTime_ = 1 / targetFrameRate;
+
+	soloud.init();
+	testSample.load(resolvePath("test.wav").c_str());
+	soloud.play(testSample);
 
 	quadManager.Initialize();
 	uiManager.Initialize();

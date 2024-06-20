@@ -29,6 +29,7 @@ target_link_libraries(engine
     glm::glm
     stbi
     box2d
+    soloud
 )
 
 target_include_directories(engine PUBLIC include)

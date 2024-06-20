@@ -32,4 +32,5 @@ target_link_libraries(game
     glad
     glm::glm
     box2d
+    soloud
 )
