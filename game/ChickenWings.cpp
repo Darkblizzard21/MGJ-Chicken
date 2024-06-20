@@ -124,8 +124,8 @@ void ChickenWings::Update()
 	}
 
 
-	meters = glm::max(meters, (uint32_t) minecart->quad->position.x);
-	scoreNumberR->SetNumber(meters);
+	meterScore = glm::max(meterScore, (uint32_t) (minecart->quad->position.x * 4.f));
+	scoreNumberR->SetNumber(Score());
 }
 
 void ChickenWings::RenderObjects()
@@ -173,5 +173,5 @@ void ChickenWings::StopGame() {
 
 uint32_t ChickenWings::Score()
 {
-	return meters / 10 + bounsScore;
+	return meterScore + bounsScore;
 }
