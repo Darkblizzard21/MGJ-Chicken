@@ -13,13 +13,14 @@ public:
 	std::shared_ptr<Quad> quad;
 
 	bool isAirborn = true;
+	b2Body* body = nullptr;
 
 private:
 	float yVelocity = 0;
 	bool wasSpacePressed = false;
 	bool collisionExecutedThisFrame = false;
 
-	b2Body* body = nullptr;
+
 
 	float baseVelocity = 5;
 	float baseAccelerationWhenSlow = 500;

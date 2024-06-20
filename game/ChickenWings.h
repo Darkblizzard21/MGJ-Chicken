@@ -19,10 +19,12 @@ public:
 	void StopGame();
 
 	std::shared_ptr<Spline> spline;
+
+
 	
 private:
 	std::unique_ptr<Minecart> minecart;
-	std::queue<std::unique_ptr<Obstacle>> obstacles;
+	std::vector<std::unique_ptr<Obstacle>> obstacles;
 	float timeUntilNextObstacle = 5;
 
 	std::unique_ptr<SplineRenderer> splineRendererB;
