@@ -95,6 +95,8 @@ void ChickenWings::ResetGame() {
 		lanterns[i].quad->position.x = lanternStep * -1.5f + lanternStep * i;
 		lanterns[i].quad->position.y = spline->sampleHight(lanterns[i].quad->position.x) + 1.2f;
 		lanterns[i].light->lightPos = lanterns[i].quad->position;
+		lanterns[i].light->lightColor = lanternStartColor * 0.8f;
+		lanterns[i].l = 0.f;
 	}
 	lastLantern = 0;
 
@@ -148,7 +150,7 @@ void ChickenWings::Update()
 	while (lanterns[lastLantern].quad->position.x - UberShader::cameraPosition.x < -14)
 	{
 		if (lanterns[lastLantern].l < 1)
-			lanterns[lastLantern].l += 0.03f;
+			lanterns[lastLantern].l += 0.1f;
 		else
 			lanterns[lastLantern].l = 1;
 
@@ -243,7 +245,6 @@ void ChickenWings::AnimateGameOver()
 	else if (gameOverTime < scoreFadeInTime + scoreFadeOutTime) {
 		float t = (gameOverTime - scoreFadeOutTime) / scoreFadeInTime;
 		float s = fadeInAnimSpline.sampleHight(t);
-		std::cout << "t " << t << " s " << s << std::endl;
 		SetScorePosAndScale({ 0, -1.5f }, fadeInAnimSpline.sampleHight(t), true);
 	}
 	else {
