@@ -34,8 +34,6 @@ void ChickenWings::StartUp() {
 	splineRendererL->layer++;
 	std::vector<glm::vec3> metal = { glm::vec3(0.75, 0.75, 0.75) };
 	splineRendererL->texture = std::make_shared<Texture>(metal, 1, 1, SamplerTypes::NearestNeighbour);
-
-	quad = quadManager.CreateQuad();
 }
 
 void ChickenWings::Update()

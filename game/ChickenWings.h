@@ -27,8 +27,6 @@ private:
 	std::unique_ptr<SplineRenderer> splineRendererB;
 	std::unique_ptr<SplineRenderer> splineRendererL;
 
-	std::shared_ptr<Quad> quad;
-	float xPos = -8;
 	float slopehight = 0;
 	float timeToNextExpansion = 0;
 	int splineSegmentCounter = -4;

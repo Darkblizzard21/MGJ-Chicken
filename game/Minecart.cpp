@@ -7,7 +7,7 @@ Minecart::Minecart() {
 
 	b2BodyDef bodyDef;
 	bodyDef.type = b2_dynamicBody;
-	bodyDef.position.Set(0.0f, 5.0f);
+	bodyDef.position.Set(0.0f, 0.0f);
 	body = ChickenWings::game.world.CreateBody(&bodyDef);
 
 	b2PolygonShape dynamicBox;
@@ -45,6 +45,8 @@ Minecart::Minecart() {
 	body->CreateFixture(&wheelFixture2);
 
 	body->SetAngularDamping(3.0f);
+
+	chickens.push_back(std::make_unique<Chicken>(body));
 }
 
 void Minecart::update()
@@ -60,7 +62,7 @@ void Minecart::update()
 
 		// up vector
 		//b2Vec2 forceVector(-glm::sin(quad->rotation), glm::cos(quad->rotation));
-		b2Vec2 forceVector = b2Vec2(0, jumpForce);
+		b2Vec2 forceVector = b2Vec2(10, jumpForce);
 
 		body->ApplyLinearImpulseToCenter(forceVector, true);
 		//body->ApplyAngularImpulse(0.2f, true);
@@ -71,7 +73,6 @@ void Minecart::update()
 	if (!glfwGetKey(ChickenWings::game.window, GLFW_KEY_SPACE))
 		wasSpacePressed = false;
 
-	// apply 30 force to right when slower then 2 and grounded
 	if (!isAirborn && body->GetLinearVelocity().Length() < baseVelocity) {
 		body->ApplyForceToCenter(b2Vec2(baseAccelerationWhenSlow * ChickenWings::game.deltaTime(), 0), true);
 	}
@@ -81,5 +82,10 @@ void Minecart::update()
 	}
 	if (glfwGetKey(ChickenWings::game.window, GLFW_KEY_D)) {
 		body->ApplyTorque(-rotationalAcceleration, true);
+	}
+
+	for (size_t i = 0; i < chickens.size(); i++)
+	{
+		chickens[i]->update();
 	}
 }

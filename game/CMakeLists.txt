@@ -22,6 +22,8 @@ target_sources(game
     ContactListener.cpp
     Obstacle.h
     Obstacle.cpp
+    Chicken.h
+    Chicken.cpp
 )
 target_link_libraries(game
     PRIVATE
